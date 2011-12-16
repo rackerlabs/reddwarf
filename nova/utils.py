@@ -223,8 +223,6 @@ def ssh_execute(ssh, cmd, process_input=None,
     stdout = stdout_stream.read()
     stderr = stderr_stream.read()
     stdin_stream.close()
-    stdout_stream.close()
-    stderr_stream.close()
 
     exit_status = channel.recv_exit_status()
 
@@ -237,7 +235,6 @@ def ssh_execute(ssh, cmd, process_input=None,
                                                   stderr=stderr,
                                                   cmd=' '.join(cmd))
 
-    channel.close()
     return (stdout, stderr)
 
 
