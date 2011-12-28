@@ -927,7 +927,10 @@ class LibvirtConnTestCase(test.TestCase):
             return
 
         self.create_fake_libvirt_mock()
-        instance = db.instance_create(self.context, self.test_instance)
+
+        instance_ref = self.test_instance
+        instance_ref['image_ref'] = 123456  # we send an int to test sha1 call
+        instance = db.instance_create(self.context, instance_ref)
 
         # Start test
         self.mox.ReplayAll()
@@ -940,7 +943,10 @@ class LibvirtConnTestCase(test.TestCase):
         try:
             conn.spawn(self.context, instance, network_info)
         except Exception, e:
-            count = (0 <= str(e.message).find('Unexpected method call'))
+            # assert that no exception is raised due to sha1 receiving an int
+            self.assertEqual(-1, str(e).find('must be string or buffer'
+                                             ', not int'))
+            count = (0 <= str(e).find('Unexpected method call'))
 
         shutil.rmtree(os.path.join(FLAGS.instances_path, instance.name))
         shutil.rmtree(os.path.join(FLAGS.instances_path, '_base'))
@@ -949,6 +955,34 @@ class LibvirtConnTestCase(test.TestCase):
         conn = connection.LibvirtConnection(False)
         ip = conn.get_host_ip_addr()
         self.assertEquals(ip, FLAGS.my_ip)
+
+    def test_broken_connection(self):
+        # Skip if non-libvirt environment
+        if not self.lazy_load_library_exists():
+            return
+
+        for (error, domain) in (
+                (libvirt.VIR_ERR_SYSTEM_ERROR, libvirt.VIR_FROM_REMOTE),
+                (libvirt.VIR_ERR_SYSTEM_ERROR, libvirt.VIR_FROM_RPC)):
+
+            conn = connection.LibvirtConnection(False)
+
+            self.mox.StubOutWithMock(conn, "_wrapped_conn")
+            self.mox.StubOutWithMock(conn._wrapped_conn, "getCapabilities")
+            self.mox.StubOutWithMock(libvirt.libvirtError, "get_error_code")
+            self.mox.StubOutWithMock(libvirt.libvirtError, "get_error_domain")
+
+            conn._wrapped_conn.getCapabilities().AndRaise(
+                    libvirt.libvirtError("fake failure"))
+
+            libvirt.libvirtError.get_error_code().AndReturn(error)
+            libvirt.libvirtError.get_error_domain().AndReturn(domain)
+
+            self.mox.ReplayAll()
+
+            self.assertFalse(conn._test_connection())
+
+            self.mox.UnsetStubs()
 
     def test_volume_in_mapping(self):
         conn = connection.LibvirtConnection(False)
