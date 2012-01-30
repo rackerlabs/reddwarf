@@ -30,7 +30,6 @@ KEYSTONE_HOME="/keystone"
 KEYSTONE_CONF="/etc/keystone/keystone.conf"
 
 USERNET="br100"
-INFRANET="br200"
 
 PACKAGES_DIR="/var/www/debian/"
 BUILD_DIR="/tmp/build/"
@@ -148,7 +147,7 @@ refresh_up_agent_work_directory() {
 
 setup_ips() {
     USERNET_IP=`get_ip_for_device $USERNET`
-    INFRANET_IP=`get_ip_for_device $INFRANET`
+    INFRANET_IP="10.0.4.15"
 }
 
 ###############################################################################
@@ -404,7 +403,7 @@ dbaas_pkg_build_nova() {
     cd $BUILD_DIR
     mkdir -p $BUILD_DIR/dbaas
     cd dbaas
-    cp -R /src/* .
+    cp -R $NOVA_HOME/* .
     cp -R $BUILD_DIR/oizys/generic_package_scripts/nova_diablo_scripts/debian .
     sed -i.bak "s/JENKINS_REVNO/$GIT_REVISION/g" debian/changelog
 
@@ -477,6 +476,22 @@ dbaas_pkg_build_sneaky_pete() {
     
 }
 
+patch_src_dir() {
+    cd $NOVA_HOME
+    patch -r - -Np1 < $NOVA_HOME/patches/compute.patch
+    patch -r - -Np1 < $NOVA_HOME/patches/nova_api.patch
+    patch -r - -Np1 < $NOVA_HOME/patches/nova_db.patch
+    patch -r - -Np1 < $NOVA_HOME/patches/utils.patch
+}
+
+revert_patch() {
+    cd $NOVA_HOME
+    patch -r - -Rp1 < $NOVA_HOME/patches/compute.patch
+    patch -r - -Rp1 < $NOVA_HOME/patches/nova_api.patch
+    patch -r - -Rp1 < $NOVA_HOME/patches/nova_db.patch
+    patch -r - -Rp1 < $NOVA_HOME/patches/utils.patch
+}
+
 build() {
     GIT_REVISION=`git --git-dir=${NOVA_HOME}/.git rev-parse HEAD`
 
@@ -499,6 +514,7 @@ build() {
     dbaas_pkg_build_firstboot
     dbaas_pkg_build_sneaky_pete
     sudo apt-get update
+    patch_src_dir
 }
 
 ###############################################################################
@@ -633,6 +649,14 @@ keystone_initialize() {
     keystone_manage endpoint add daffy 1
     keystone_manage endpoint add daffy 2
     keystone_manage user add daffy daffy daffy
+
+    # Added this user for example generator
+    keystone_manage tenant add 1234
+    keystone_manage user add examples examples 1234
+    keystone_manage role grant $AUTH_ADMIN_ROLE examples
+    keystone_manage role grant $AUTH_ADMIN_ROLE examples 1234
+    keystone_manage endpoint add 1234 1
+    keystone_manage endpoint add 1234 2
 }
 
 nova_initialize() {
@@ -641,14 +665,18 @@ nova_initialize() {
     nova_manage user admin boss admin admin
     nova_manage project create dbaas admin
 
+    # Added this for example generator
+    nova_manage user admin examples examples examples
+    nova_manage project create 1234 examples
+
     reddwarf_manage db sync
 }
 
-setup_dns() {
-    cd $TEST_HOME
+setup_dns() {        
     if [ ! -z "$SETUP_DNS" ]; then
+        exclaim "Setting up DNS..."
         # Make sure the domain name exists (must happen before the image is added)
-        sudo -E ADD_DOMAINS=True NOVASRC=$NOVA_HOME $TEST_HOME/run_tests_nv.sh --conf=$TESTS_CONF --group=rsdns.domains
+        ADD_DOMAINS=True run_tests --group=rsdns.domains
 
         # add the dns domain id to the nova.conf
         cat /home/vagrant/dns_resource.txt | sed s/^/--dns_domain_id=/ >> $NOVA_CONF
@@ -673,16 +701,16 @@ setup_networking() {
 
     # This next value will be something like '10.0.0'
     ip_startbr100=`ip_chunk br100 1`.`ip_chunk br100 2`.`ip_chunk br100 3`
-    ip_startbr200=`ip_chunk br200 1`.`ip_chunk br200 2`.`ip_chunk br200 3`
+    # ip_startbr200=`ip_chunk br200 1`.`ip_chunk br200 2`.`ip_chunk br200 3`
 
-    gateway_ip=`/sbin/route -n|sed 's/ \+/ /g'|grep "^0.0.0.0 ${ip_startbr100}"|cut -d' ' -f2`
+    gateway_ip=`/sbin/ifconfig $USERNET|grep 'inet '|sed 's/:/ /g'|sed 's/ \+/ /g'| cut -d' ' -f4`
     dns_ip=`grep -m1 nameserver /etc/resolv.conf |cut -d' ' -f2`
 
     echo "--flat_network_dns=$dns_ip" >> $NOVA_CONF
 
     # Can't figure out the CIDR rules, so I'm giving it 256 ips.
     nova_manage network create --label=usernet --fixed_range_v4=$ip_startbr100.0/24 --num_networks=1 --network_size=256 --bridge=br100 --bridge_interface=eth0 --dns1=$dns_ip
-    nova_manage network create --label=infranet --fixed_range_v4=$ip_startbr200.0/24 --num_networks=1 --network_size=256 --bridge=br200 --bridge_interface=eth1 --dns1=$dns_ip
+    #nova_manage network create --label=infranet --fixed_range_v4=$ip_startbr200.0/24 --num_networks=1 --network_size=256 --bridge=br200 --bridge_interface=eth1 --dns1=$dns_ip
     hostname=`hostname`
 
     # Assume there is only one network and `update all rows.
@@ -690,7 +718,7 @@ setup_networking() {
     mysql_query "UPDATE nova.networks SET host='$hostname';"
 
     delete_extra_ips br100 $ip_startbr100
-    delete_extra_ips br200 $ip_startbr200
+    #delete_extra_ips br200 $ip_startbr200
 }
 
 reset_services() {
@@ -793,6 +821,19 @@ run_ci() {
     run_agent_tests
     run_tests $@
 }
+
+###############################################################################
+# Start a Python REPL that works just like the test environment.
+###############################################################################
+###############################################################################
+
+repl() {
+    INT_TEST_OPTIONS=-i run_tests --group=_does_not_exist_ $@
+}
+
+###############################################################################
+
+
 
 ###############################################################################
 # Start Reddwarf interactively in a screen session
@@ -923,9 +964,12 @@ case "$1" in
     "test-agent" ) shift; run_agent_tests $@;;
     "initialize" ) initialize;;
     "test" ) shift; run_tests $@;;
+    "repl" ) repl $@;;
     "start" ) start_reddwarf;;
     "stop" ) stop_reddwarf;;
     "show_dns_entries" ) show_dns_entries;;
+    "patch" ) patch_src_dir;;
+    "revert-patch" ) revert_patch;;
     * )
         echo "'$1' not a valid command"
         exit 1

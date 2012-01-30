@@ -34,6 +34,12 @@ import unittest
 import sys
 
 
+if os.environ.get("PYDEV_DEBUG", "False") == 'True':
+    from pydev import pydevd
+    pydevd.settrace('10.0.2.2', port=7864, stdoutToServer=True,
+                    stderrToServer=True)
+
+
 def add_support_for_localization():
     """Adds support for localization in the logging.
 
@@ -73,12 +79,16 @@ if __name__ == '__main__':
     add_support_for_localization()
 
     # Strip non-nose arguments out before passing this to nosetests
+
+    repl = False
     nose_args = []
     conf_file = "~/nemesis.conf"
     show_elapsed = True
     groups = []
     print("RUNNING TEST ARGS :  " + str(sys.argv))
     for arg in sys.argv[1:]:
+        if arg[:2] == "-i":
+            repl = True
         if arg[:7] == "--conf=":
             conf_file = os.path.expanduser(arg[7:])
             print("Setting NEMESIS_CONF to " + conf_file)
@@ -106,7 +116,7 @@ if __name__ == '__main__':
 
     from nova import utils
     utils.default_flagfile(str(nova_conf))
-    
+
     from nova import flags
     FLAGS = flags.FLAGS
     FLAGS(sys.argv)
@@ -270,5 +280,12 @@ if __name__ == '__main__':
     runner.init()
     MAIN_RUNNER = runner
 
+    if repl:
+        # Turn off the following "feature" of the unittest module in case we want
+        # to start a REPL.
+        sys.exit = lambda x : None
+
     proboscis.TestProgram(argv=nose_args, groups=groups,
                           testRunner=runner).run_and_exit()
+    sys.stdout = sys.__stdout__
+    sys.stderr = sys.__stderr__

@@ -35,13 +35,16 @@ from sqlalchemy import create_engine
 
 from nova import flags
 from nova import utils
-from nova.notifier import log_notifier  # This is here so flags are loaded
+from reddwarf import dns # import for flag values
+from reddwarf.notifier import logfile_notifier  # This is here so flags are loaded
 from nose.tools import assert_false
-from nova.utils import PollTimeOut
+from reddwarf import exception
+from reddwarf.utils import poll_until
 from reddwarfclient import Dbaas
 from tests.util import test_config
 from tests.util.client import TestClient as TestClient
 from tests.util.topics import hosts_up
+
 
 
 FLAGS = flags.FLAGS
@@ -152,7 +155,7 @@ def restart_compute_service(extra_args=None):
     test_config.compute_service.restart(extra_args=extra_args)
     # Be absolutely certain the compute manager is ready before passing control
     # back to caller.
-    utils.poll_until(lambda: hosts_up('compute'),
+    poll_until(lambda: hosts_up('compute'),
                      sleep_time=1, time_out=60)
     wait_for_compute_service()
 
@@ -162,14 +165,14 @@ def wait_for_compute_service():
     line = "Creating Consumer connection for Service compute from (pid=%d)" % \
            pid
     try:
-        utils.poll_until(lambda: check_logs_for_message(line),
+        poll_until(lambda: check_logs_for_message(line),
                          sleep_time=1, time_out=60)
-    except PollTimeOut:
+    except exception.PollTimeOut:
         raise RuntimeError("Could not find the line %s in the logs." % line)
 
 def should_run_rsdns_tests():
     """If true, then the RS DNS tests should also be run."""
-    return FLAGS.dns_driver == "nova.dns.rsdns.driver.RsDnsDriver"
+    return FLAGS.dns_driver == "reddwarf.dns.rsdns.driver.RsDnsDriver"
 
 
 def string_in_list(str, substr_list):

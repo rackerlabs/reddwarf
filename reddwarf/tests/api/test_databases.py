@@ -15,15 +15,16 @@
 Tests for Databases API calls
 """
 
+import json
 import mox
 import stubout
 import webob
 from paste import urlmap
 from nose.tools import raises
 
-import nova
 from nova import context
 from nova import test
+from nova.compute import power_state
 
 import reddwarf
 from reddwarf import exception
@@ -32,12 +33,29 @@ from reddwarf.tests import util
 
 databases_url = "%s/1/databases" % util.v1_instances_prefix
 
+class FakeState(object):
+    def __init__(self):
+        self.state = power_state.RUNNING
+
+def guest_status_get(id):
+    return FakeState()
+
+def localid_from_uuid(id):
+    return id
+
 def list_databases_exception(self, req, instance_id):
     raise Exception()
 
 def instance_exists(ctxt, instance_id, compute_api):
     return True
 
+def request_obj(url, method, body=None):
+    req = webob.Request.blank(url)
+    req.method = method
+    if body:
+        req.body = json.dumps(body)
+    req.headers["content-type"] = "application/json"
+    return req
 
 class DatabaseApiTest(test.TestCase):
     """Test various Database API calls"""
@@ -47,13 +65,15 @@ class DatabaseApiTest(test.TestCase):
         self.context = context.get_admin_context()
         self.controller = databases.Controller()
         self.stubs.Set(reddwarf.api.common, "instance_exists", instance_exists)
+        self.stubs.Set(reddwarf.db.api, "localid_from_uuid", localid_from_uuid)
+        self.stubs.Set(reddwarf.db.api, "guest_status_get", guest_status_get)
 
     def tearDown(self):
         self.stubs.UnsetAll()
         super(DatabaseApiTest, self).tearDown()
 
     def test_list_databases(self):
-        self.stubs.Set(nova.guest.api.API, "list_databases",
+        self.stubs.Set(reddwarf.guest.api.API, "list_databases",
                        list_databases_exception)
         req = webob.Request.blank(databases_url)
         res = req.get_response(util.wsgi_app())
@@ -66,8 +86,7 @@ class DatabaseApiTest(test.TestCase):
 
     @raises(exception.BadRequest)
     def test_validate_empty_body(self):
-        controller = databases.Controller()
-        controller._validate("")
+        self.controller._validate("")
 
     @raises(exception.BadRequest)
     def test_validate_no_databases_element(self):
@@ -82,3 +101,25 @@ class DatabaseApiTest(test.TestCase):
     def test_valid_create_databases_body(self):
         body = {'databases': [{'name': 'testdb'}]}
         self.controller._validate(body)
+
+    def test_delete_database_name_begin_space(self):
+        req = request_obj(databases_url+"/%20test", 'DELETE')
+        res = req.get_response(util.wsgi_app(fake_auth_context=self.context))
+        self.assertEqual(res.status_int, 400)
+
+    def test_delete_database_name_end_space(self):
+        req = request_obj(databases_url+"/test%20", 'DELETE')
+        res = req.get_response(util.wsgi_app(fake_auth_context=self.context))
+        self.assertEqual(res.status_int, 400)
+
+    def test_create_database_name_begin_space(self):
+        body = {'databases': [{'name': ' test'}]}
+        req = request_obj(databases_url, 'POST')
+        res = req.get_response(util.wsgi_app(fake_auth_context=self.context))
+        self.assertEqual(res.status_int, 400)
+
+    def test_create_database_name_end_space(self):
+        body = {'databases': [{'name': 'test '}]}
+        req = request_obj(databases_url, 'POST')
+        res = req.get_response(util.wsgi_app(fake_auth_context=self.context))
+        self.assertEqual(res.status_int, 400)

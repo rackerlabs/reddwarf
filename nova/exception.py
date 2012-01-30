@@ -345,28 +345,12 @@ class FlagNotSet(NotFound):
     message = _("Required flag %(flag)s not set.")
 
 
-class ConfigNotFound(NotFound):
-    message = _("Configuration %(key)s not found.")
-
-
-class DuplicateConfigEntry(NotFound):
-    message = _("Configuration %(key)s already exists.")
-
-
 class InstanceNotFound(NotFound):
     message = _("Instance %(instance_id)s could not be found.")
 
 
-class DevicePathInvalidForUuid(NotFound):
-    message = _("Could not get a UUID from device path %(device_path).")
-
-
 class VolumeNotFound(NotFound):
     message = _("Volume %(volume_id)s could not be found.")
-
-
-class VolumeProvisioningError(NotFound):
-    message = _("An error occured provisioning volume %(volume_id)s.")
 
 
 class VolumeNotFoundForInstance(VolumeNotFound):
@@ -410,10 +394,6 @@ class ExportDeviceNotFoundForVolume(NotFound):
 
 class ISCSITargetNotFoundForVolume(NotFound):
     message = _("No target id found for volume %(volume_id)s.")
-
-
-class ISCSITargetNotDiscoverable(NotFound):
-    message = _("Target for volume %(volume_id)s not found.")
 
 
 class DiskNotFound(NotFound):
@@ -703,12 +683,6 @@ class SchedulerCostFunctionNotFound(NotFound):
 
 class SchedulerWeightFlagNotFound(NotFound):
     message = _("Scheduler weight flag not found: %(flag_name)s")
-
-
-class OutOfInstanceMemory(NovaException):
-
-    message = _("Scheduler unable to find a host with memory left for an "
-                "instance needing %(instance_memory_mb)s MB of RAM.")
 
 
 class InstanceMetadataNotFound(NotFound):

@@ -24,22 +24,21 @@ from nova import db
 from nova import exception as nova_exception
 from nova import flags
 from nova import log as logging
-from nova import utils
-from nova import volume
 from nova.api.openstack import common as nova_common
 from nova.api.openstack import faults
 from nova.api.openstack import servers
 from nova.api.openstack import wsgi
 from nova.compute import power_state
 from nova.compute import vm_states
-from nova.guest import api as guest_api
 from nova.notifier import api as notifier
 
 from reddwarf import exception
+from reddwarf import volume
 from reddwarf.api import common
 from reddwarf.api import deserializer
 from reddwarf.api.views import instances
 from reddwarf.db import api as dbapi
+from reddwarf.guest import api as guest_api
 
 
 LOG = logging.getLogger('reddwarf.api.instances')
@@ -82,7 +81,7 @@ class Controller(object):
 
         # Instances need the status for each instance in all circumstances,
         # unlike servers.
-        server_states = db.instance_state_get_all_filtered(context)
+        server_states = dbapi.instance_state_get_all_filtered(context)
         for server in server_list:
             state = server_states[server['id']]
             server['status'] = nova_common.status_from_state(state)
@@ -205,8 +204,6 @@ class Controller(object):
         guest_state = self.get_guest_state_mapping([local_id])
         instance = self.view.build_single(server_resp['server'], req,
                                           guest_state, create=True)
-        # Update volume description
-        self.update_volume_info(context, volume_ref, instance)
 
         # add the volume information to response
         LOG.debug("adding the volume information to the response...")
@@ -229,13 +226,6 @@ class Controller(object):
                                       snapshot_id=None,
                                       name=name,
                                       description=description)
-
-    def update_volume_info(self, context, volume_ref, instance):
-        """Update the volume description with the available instance info"""
-        description = FLAGS.reddwarf_volume_description \
-                            % (volume_ref['id'], instance['id'])
-        self.volume_api.update(context, volume_ref['id'],
-                               {'display_description': description})
 
     def _try_create_server(self, req, body):
         """Handle the call to create a server through the openstack servers api.
@@ -267,16 +257,16 @@ class Controller(object):
         # Add image_ref
         try:
             server['imageRef'] = dbapi.config_get("reddwarf_imageref").value
-        except nova_exception.ConfigNotFound:
+        except exception.ConfigNotFound:
             msg = "Cannot find the reddwarf_imageref config value, " \
                   "using default of 1"
             LOG.warn(msg)
             notifier.notify(publisher_id(), "reddwarf.image", notifier.WARN,
                             msg)
             server['imageRef'] = 1
-        # Add Firewall rules
-        firewall_rules = [FLAGS.default_firewall_rule_name]
-        server['firewallRules'] = firewall_rules
+        # Add security groups
+        security_groups = [{'name': FLAGS.default_firewall_rule_name}]
+        server['security_groups'] = security_groups
         # Add volume id
         if not 'metadata' in instance:
             server['metadata'] = {}

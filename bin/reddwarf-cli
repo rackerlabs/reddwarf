@@ -36,7 +36,6 @@ if os.path.exists(os.path.join(possible_topdir, 'nova', '__init__.py')):
     sys.path.insert(0, possible_topdir)
 
 
-from nova import version
 from reddwarfclient import common
 
 
@@ -295,14 +294,14 @@ def main():
     # Parse arguments
     global oparser
     oparser = optparse.OptionParser("%prog [options] <cmd> <action> <args>",
-                                    version=version.version_string)
+                                    version='1.0')
     config_options()
     (options, args) = oparser.parse_args()
 
     if not args:
         common.print_commands(COMMANDS)
 
-    # Pop the command and check if it's in the know commands
+    # Pop the command and check if it's in the known commands
     cmd = args.pop(0)
     if cmd in COMMANDS:
         fn = COMMANDS.get(cmd)
@@ -323,13 +322,13 @@ def main():
                 fn(*args)
                 sys.exit(0)
             except TypeError as err:
-                print "Possible wrong number of arguments supplied"
+                print "Possible wrong number of arguments supplied."
                 print "%s %s: %s" % (cmd, action, fn.__doc__)
                 print "\t\t", [fn.func_code.co_varnames[i] for i in
                                             range(fn.func_code.co_argcount)]
                 print "ERROR: %s" % err
             except Exception:
-                print "Command failed, please check log for more info"
+                print "Command failed, please check the log for more info."
                 raise
         else:
             common.print_actions(cmd, actions)
