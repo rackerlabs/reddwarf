@@ -94,6 +94,16 @@ VOLUME_TIME_OUT = 30
 # is set to fail.  If it isn't possible to make sure the volume never
 # provisions this could also be a reaper test.
 
+def wait_until_scheduler_is_ready():
+    """
+    Make sure the scheduler has finished marking volumes as deleted and
+    returned memory to its quota, otherwise it will fail to provision a new
+    instance.
+    """
+    #TODO(tim.simpson): This is a hack; we need a proper solution but this is
+    #                   better than nothing.
+    time.sleep(30)
+
 
 @test(groups=[GROUP, GROUP + ".volume"],
       depends_on_groups=["services.initialize"])
@@ -102,6 +112,7 @@ class VerifyManagerAbortsInstanceWhenVolumeFails(InstanceTest):
     @before_class
     def setUp(self):
         """Sets up the client."""
+        wait_until_scheduler_is_ready()
         test_config.volume_service.stop()
         assert_false(test_config.volume_service.is_running)
         restart_compute_service(['--reddwarf_volume_time_out=%d'
