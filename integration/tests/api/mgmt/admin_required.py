@@ -75,6 +75,17 @@ class TestAdminRequired(object):
                       self.dbaas.management.root_enabled_history, 0)
 
     @test
+    def test_mgmt_instance_reboot(self):
+        """ A regular user may not perform an instance reboot. """
+        assert_raises(Unauthorized, self.dbaas.management.reboot, 0)
+
+    @test
     def test_storage_index(self):
         """ A regular user may not view the list of storage available. """
         assert_raises(Unauthorized, self.dbaas.storage.index)
+
+    @test
+    def test_diagnostics_get(self):
+        """ A regular user may not view the diagnostics. """
+        assert_raises(Unauthorized, self.dbaas.diagnostics.get, 0)
+

@@ -17,6 +17,11 @@ from novaclient import base
 
 import exceptions
 
+from reddwarfclient.common import check_for_exceptions
+
+
+REBOOT_SOFT, REBOOT_HARD = 'SOFT', 'HARD'
+
 
 class Instance(base.Resource):
     """
@@ -33,6 +38,12 @@ class Instance(base.Resource):
         Delete the instance.
         """
         self.manager.delete(self)
+
+    def restart(self):
+        """
+        Restart the database instance
+        """
+        self.manager.restart(self.id)
 
 
 class Instances(base.ManagerWithFind):
@@ -103,3 +114,27 @@ class Instances(base.ManagerWithFind):
         resp, body = self.api.client.delete("/instances/%s" % base.getid(instance))
         if resp.status in (422, 500):
             raise exceptions.from_response(resp, body)
+
+    def _action(self, instance_id, body):
+        """
+        Perform a server "action" -- reboot/rebuild/resize/etc.
+        """
+        url = "/instances/%s/action" % instance_id
+        resp, body = self.api.client.post(url, body=body)
+        check_for_exceptions(resp, body)
+
+    def resize(self, instance_id, volume_size):
+        """
+        Resize the volume on an existing instances
+        """
+        body = {"resize": {"volume": {"size": volume_size}}}
+        self._action(instance_id, body)
+
+    def restart(self, instance_id):
+        """
+        Restart the database instance.
+
+        :param instance_id: The :class:`Instance` (or its ID) to share onto.
+        """
+        body = {'restart': {}}
+        self._action(instance_id, body)

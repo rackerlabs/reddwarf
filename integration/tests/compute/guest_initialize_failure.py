@@ -184,6 +184,7 @@ class VerifyManagerAbortsInstanceWhenGuestInstallFails(InstanceTest):
     @before_class
     def setUp(self):
         """Sets up the client."""
+        wait_until_scheduler_is_ready()
         restart_compute_service(['--reddwarf_guest_initialize_time_out=%d'
                                  % GUEST_INSTALL_TIMEOUT])
         self.init("TEST_FAIL_GUEST_")

@@ -19,8 +19,22 @@
 
 """Runs the tests.
 
+There are a few initialization issues to deal with.
+The first is flags, which must be initialized before any imports. The test
+configuration has the same problem (it was based on flags back when the tests
+resided outside of the Nova code).
+
+The command line is picked apart so that Nose won't see commands it isn't
+compatable with, such as "--flagfile" or "--group".
+
 This script imports all other tests to make them known to Proboscis before
-passing control to proboscis.TestProgram.
+passing control to proboscis.TestProgram which itself calls nose, which then
+call unittest.TestProgram and exits.
+
+If "repl" is a command line argument, then the original stdout and stderr is
+saved and sys.exit is neutralized so that unittest.TestProgram will not exit
+and instead sys.stdout and stderr are restored so that interactive mode can
+be used.
 
 """
 
@@ -32,6 +46,9 @@ import os
 import time
 import unittest
 import sys
+
+
+
 
 
 if os.environ.get("PYDEV_DEBUG", "False") == 'True':
@@ -57,12 +74,11 @@ def add_support_for_localization():
 
 
 MAIN_RUNNER = None
-REPORTER = None
 
 def _clean_up():
     """Shuts down any services this program has started and shows results."""
-    if REPORTER is not None:
-        REPORTER.update()
+    from tests.util import report
+    report.update()
     if MAIN_RUNNER is not None:
         MAIN_RUNNER.on_exit()
     from tests.util.services import get_running_services
@@ -87,7 +103,7 @@ if __name__ == '__main__':
     groups = []
     print("RUNNING TEST ARGS :  " + str(sys.argv))
     for arg in sys.argv[1:]:
-        if arg[:2] == "-i":
+        if arg[:2] == "-i" or arg == 'repl':
             repl = True
         if arg[:7] == "--conf=":
             conf_file = os.path.expanduser(arg[7:])
@@ -121,14 +137,19 @@ if __name__ == '__main__':
     FLAGS = flags.FLAGS
     FLAGS(sys.argv)
 
-    from tests.util.report import Reporter
-    REPORTER = Reporter(test_config.values["report_directory"])
+    from tests.util import report
+    from datetime import datetime
+    report.log("Reddwarf Integration Tests, %s" % datetime.now())
+    report.log("Invoked via command: " + str(sys.argv))
+    report.log("Groups = " + str(groups))
+    report.log("Test configuration file = %s" % nova_conf)
 
     # Now that the FlagFiles and other args have been parsed, time to import
     # everything.
 
     import proboscis
     from tests.dns import check_domain
+    from tests.dns import concurrency
     from tests.dns import conversion
 
     # The DNS stuff is problematic. Not loading the other tests allow us to
@@ -138,12 +159,14 @@ if __name__ == '__main__':
         from tests.api import flavors
         from tests.api import versions
         from tests.api import instances
+        from tests.api import instances_actions
         from tests.api import databases
         from tests.api import root
         from tests.api import users
         from tests.api.mgmt import accounts
         from tests.api.mgmt import admin_required
         from tests.api.mgmt import hosts
+        from tests.api.mgmt import instances
         from tests.api.mgmt import storage
         from tests.openvz import dbaas_ovz
         from tests.dns import dns
@@ -156,10 +179,12 @@ if __name__ == '__main__':
         from tests.volumes import driver
         from tests.volumes import VOLUMES_DRIVER
         from tests.compute import guest_initialize_failure
+        from tests.openvz import compute_reboot_vz as compute_reboot
         from tests import util
 
         host_ovz_groups = [
             "dbaas.guest",
+            compute_reboot.GROUP,
             "dbaas.guest.dns",
             SCHEDULER_DRIVER_GROUP,
             pkg_tests.GROUP,
@@ -168,7 +193,8 @@ if __name__ == '__main__':
             volume_reaping.GROUP
         ]
         if util.should_run_rsdns_tests():
-            host_ovz_groups += ["rsdns.conversion", "rsdns.domains"]
+            host_ovz_groups += ["rsdns.conversion", "rsdns.domains",
+                                "rsdns.eventlet"]
 
         proboscis.register(groups=["host.ovz"], depends_on_groups=host_ovz_groups)
 

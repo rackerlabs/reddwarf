@@ -13,6 +13,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from webob import exc
+
 from nova import compute
 from nova import exception as nova_exception
 from nova import flags
@@ -25,6 +27,7 @@ from nova.compute import power_state
 from reddwarf import exception
 from reddwarf import volume
 from reddwarf.api import common
+from reddwarf.api.status import InstanceStatusLookup
 from reddwarf.api.views import instances
 from reddwarf.db import api as dbapi
 from reddwarf.guest import api as guest
@@ -43,6 +46,10 @@ def create_resource(version='1.0'):
             'attributes': {
                 'instance': ['account_id',
                              'created',
+                             'created_at',
+                             'deleted',
+                             'deleted_at',
+                             'flavorid',
                              'host',
                              'hostname',
                              'id',
@@ -54,7 +61,9 @@ def create_resource(version='1.0'):
                              'updated'],
                 'network': ['id'],
                 'ip': ['addr',
-                       'version'],
+                       'address',
+                       'version',
+                       'virtual_interface_id'],
                 'flavor': ['id'],
                 'guest_status': ['created_at',
                                  'deleted',
@@ -122,24 +131,16 @@ class Controller(object):
             LOG.error("Could not find an instance with id %s" % id)
             raise exception.NotFound("No instance with id %s" % id)
 
-        guest_state = None
-        try:
-            guest_state = dbapi.guest_status_get(instance_id)
-        except exception.NotFound:
-            LOG.error("Could not find the guest status for instance %s" % id)
-        status = None
-        status_dict = {}
-        if guest_state:
-            status = guest_state
-            status_dict = {instance_id: guest_state.state}
-
+        status_lookup = InstanceStatusLookup([instance_id])
         instance = self.instance_view.build_mgmt_single(server,
                                                         instance_ref,
                                                         req,
-                                                        status_dict)
+                                                        status_lookup)
         try:
+            status = status_lookup.get_status_from_server(server)
             instance = self._get_guest_info(context, instance_id, status,
                                             instance)
+
         except Exception as err:
             msg = "Unable to retrieve information from the guest"
             LOG.error(err)
@@ -148,11 +149,54 @@ class Controller(object):
 
         return {'instance': instance}
 
+    @common.verify_admin_context
+    def index(self, req):
+        """ Returns all local instances, optionally filtered by deleted status."""
+        LOG.info("Get all Instances")
+        LOG.debug("%s - %s", req.environ, req.body)
+        dfilter = req.GET.get('deleted', None)
+        deleted = None
+        if dfilter is not None:
+            if  dfilter.lower() in ['true']:
+                deleted = True
+            elif dfilter.lower() in ['false']:
+                deleted = False
+
+        context = req.environ['nova.context']
+        instances, flavors, ips = dbapi.instances_mgmt_index(context, deleted)
+        result = []
+        for instance in instances:
+            details = {
+                'account_id': instance['project_id'],
+                'id': instance['uuid'],
+                'host': instance['host'],
+                'status': instance['vm_state'],
+                'created_at': instance['created_at'],
+                'deleted_at': instance['deleted_at'],
+                'deleted': instance['deleted'],
+            }
+            # Associate the flavor.
+            # TODO(ed-): Should probably make the relational database do all the data relating.
+            flavor = [f for f in flavors if f['id'] == instance['instance_type_id']]
+            if len(flavor) > 0:
+                flavor = flavor[0]
+                details['flavorid'] = flavor['flavorid']
+
+            # Now associate the IPs.
+            # TODO(ed-): A join would be preferable.
+            details['ips'] = [{
+                'address': ip['address'],
+                'virtual_interface_id': ip['virtual_interface_id'],
+                } for ip in ips]
+            result.append(details)
+
+        return {"instances": result}
+
     def _get_guest_info(self, context, id, status, instance):
         """Get all the guest details and add it to the response"""
         dbs = None
         users = None
-        if status and status.state == power_state.RUNNING:
+        if status.is_sql_running:
             db_list = self.guest_api.list_databases(context, id)
 
             LOG.debug("DBS: %r" % db_list)
@@ -182,8 +226,41 @@ class Controller(object):
         common.instance_exists(ctxt, id, self.compute_api)
         try:
             result = dbapi.get_root_enabled_history(ctxt, local_id)
-            root_history = self.instance_view.build_root_history(local_id, result)
+            root_history = self.instance_view.build_root_history(id, result)
             return {'root_enabled_history': root_history}
         except Exception as err:
             LOG.error(err)
             raise exception.InstanceFault("Error determining root access history")
+
+    @common.verify_admin_context
+    def action(self, req, id, body):
+        """Multi-purpose method used to take actions on an instance."""
+        ctxt = req.environ['nova.context']
+        common.instance_exists(ctxt, id, self.compute_api)
+
+        _actions = {
+            'reboot': self._action_reboot,
+        }
+
+        for key in body:
+            if key in _actions:
+                return _actions[key](body, req, id)
+            else:
+                msg = _("There is no such server action: %s") % (key,)
+                raise exception.BadRequest(msg)
+
+        msg = _("Invalid request body")
+        raise exception.BadRequest(msg)
+
+    def _action_reboot(self, body, req, id):
+        LOG.info("Call to reboot for instance %s", id)
+        LOG.debug("%s - %s", req.environ, req.body)
+        ctxt = req.environ['nova.context']
+        local_id = dbapi.localid_from_uuid(id)
+
+        try:
+            self.compute_api.reboot(ctxt, local_id)
+            return exc.HTTPAccepted()
+        except Exception as err:
+            LOG.exception(_("Error in reboot %s"), e)
+            raise exception.UnprocessableEntity()

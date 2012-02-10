@@ -98,3 +98,6 @@ class MgmtApiTest(test.TestCase):
 
     def test_root_restricted(self):
         self._test_path_restricted('instances/1/root')
+
+    def test_instances_index_restricted(self):
+        self._test_path_restricted('instances')

@@ -40,6 +40,10 @@
                             <doc>The instanceID for the specified database instance.</doc></param>
                         <method href="#getInstanceById" />
                         <method href="#deleteInstance" />
+                        <resource id="instanceAction" path="action">
+                            <method href="#restartInstance" />
+                            <method href="#resizeInstance" />
+                        </resource>
                         <resource id="databases" path="databases">
                             <method href="#createDatabase" />
                             <method href="#getDatabases" />
@@ -412,6 +416,83 @@
         </response>
     &commonFaults;
     &getFaults;
+    </method>
+
+    <!-- Instance Actions -->
+    <method name="POST" id="restartInstance">
+        <wadl:doc xml:lang="EN" title="Restart the Instance"  xmlns="http://docbook.org/ns/docbook">
+            <para role="shortdesc">Restart the Database service on the instance.</para>
+            <para>The restart will restart only the Mysql Instance. Restarting MySQL will erase any dynamic configuration settings that were made.</para>
+            <para>This operation returns a 202 Accepted response.</para>
+        </wadl:doc>
+        <request>
+            <representation mediaType="application/xml" element="dbaas:Restart">
+                <doc>
+                    <para xmlns="http://docbook.org/ns/docbook">The following examples show the Restart Instance requests:</para>
+                    <xsdxt:code href="../apidocs/src/resources/samples/db-instance-restart-request.xml"/>
+                </doc>
+            </representation>
+            <representation mediaType="application/json" element="dbaas:Restart">
+                <doc>
+                    <xsdxt:code href="../apidocs/src/resources/samples/db-instance-restart-request.json"/>
+                </doc>
+            </representation>
+        </request>
+        <response status="202">
+            <representation mediaType="application/xml">
+                <doc>
+                    <para xmlns="http://docbook.org/ns/docbook">The following examples show the Restart Instance responses:</para>
+                    <xsdxt:code href="../apidocs/src/resources/samples/db-instance-restart-response.xml"/>
+                </doc>
+            </representation>
+            <representation mediaType="application/json">
+                <doc>
+                    <xsdxt:code href="../apidocs/src/resources/samples/db-instance-restart-response.json"/>
+                </doc>
+            </representation>
+        </response>
+        &commonFaults;
+        &getFaults;
+        &postPutFaults;
+    </method>
+
+    <method name="POST" id="resizeInstance">
+        <wadl:doc xml:lang="EN" title="Resize the Instance"  xmlns="http://docbook.org/ns/docbook">
+            <para role="shortdesc">Resize the volume attached to the Instance.</para>
+            <para>This supports resizing the attached volume to an instance. It only supports increasing the volume size and does not support decreasing the size.</para>
+            <para>This operation does not return a response.</para>
+        </wadl:doc>
+        <request>
+            <representation mediaType="application/xml"
+                            element="dbaas:Resize">
+                <doc>
+                    <para xmlns="http://docbook.org/ns/docbook">The following examples show the Resize Instance requests:</para>
+                    <xsdxt:code href="../apidocs/src/resources/samples/db-instance-resize-volume-request.xml"/>
+                </doc>
+            </representation>
+            <representation mediaType="application/json"
+                            element="dbaas:Resize">
+                <doc>
+                    <xsdxt:code href="../apidocs/src/resources/samples/db-instance-resize-volume-request.json"/>
+                </doc>
+            </representation>
+        </request>
+        <response status="202">
+            <representation mediaType="application/xml">
+                <doc>
+                    <para xmlns="http://docbook.org/ns/docbook">The following examples show the Resize Instance responses:</para>
+                    <xsdxt:code href="../apidocs/src/resources/samples/db-instance-resize-volume-response.xml"/>
+                </doc>
+            </representation>
+            <representation mediaType="application/json">
+                <doc>
+                    <xsdxt:code href="../apidocs/src/resources/samples/db-instance-resize-volume-response.json"/>
+                </doc>
+            </representation>
+        </response>
+        &commonFaults;
+        &getFaults;
+        &postPutFaults;
     </method>
 
     <!-- Database -->

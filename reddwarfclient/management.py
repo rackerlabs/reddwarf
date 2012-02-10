@@ -14,6 +14,8 @@
 #    under the License.
 
 from novaclient import base
+
+from reddwarfclient.common import check_for_exceptions
 from reddwarfclient.instances import Instance
 
 class RootHistory(base.Resource):
@@ -43,6 +45,26 @@ class Management(base.ManagerWithFind):
         return self._list("/mgmt/instances/%s" % base.getid(instance),
             'instance')
 
+    def index(self, deleted=None):
+        """
+        Show an overview of all local instances.
+        Optionally, filter by deleted status.
+
+        :rtype: list of :class:`Instance`.
+        """
+        form = ''
+        if deleted is not None:
+            if deleted:
+                form = "?deleted=true"
+            else:
+                form = "?deleted=false"
+
+        url = "/mgmt/instances%s" % form
+        resp, body = self.api.client.get(url)
+        if not body:
+            raise Exception("Call to " + url + " did not return a body.")
+        return [self.resource_class(self, instance) for instance in body['instances']]
+
     def root_enabled_history(self, instance):
         """
         Get root access history of one instance.
@@ -53,3 +75,20 @@ class Management(base.ManagerWithFind):
         if not body:
             raise Exception("Call to " + url + " did not return a body.")
         return RootHistory(self, body['root_enabled_history'])
+
+    def _action(self, instance_id, body):
+        """
+        Perform a server "action" -- reboot/rebuild/resize/etc.
+        """
+        url = "/mgmt/instances/%s/action" % instance_id
+        resp, body = self.api.client.post(url, body=body)
+        check_for_exceptions(resp, body)
+
+    def reboot(self, instance_id):
+        """
+        Reboot the underlying OS.
+
+        :param instance_id: The :class:`Instance` (or its ID) to share onto.
+        """
+        body = {'reboot': {}}
+        self._action(instance_id, body)

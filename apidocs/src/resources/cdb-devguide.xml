@@ -51,11 +51,12 @@
         <copyright>
             <year>2010</year>
             <year>2011</year>
+            <year>2012</year>
             <holder>Rackspace US, Inc.</holder>
         </copyright>
         <releaseinfo>API v1.0 BETA</releaseinfo>
         <productname>Rackspace Cloud Database</productname>
-        <pubdate>2012-01-11</pubdate>
+        <pubdate>2012-01-26</pubdate>
         <legalnotice role="rs-api">
             <annotation>
                 <remark>Copyright details are filled in by the template.</remark>
@@ -70,9 +71,36 @@
         
         <revhistory>
             <revision>
+                <date>2012-01-26</date>
+                <revdescription>
+                    <itemizedlist spacing="compact">
+                        <listitem>
+                            <para>Updated doc for bug fixes in
+                                code.</para>
+                        </listitem>
+                        <listitem>
+                            <para>Added DFW service endpoint in <xref
+                                   linkend="Service_Access_Endpoints-d1e753"
+                                /></para>
+                        </listitem>
+                    </itemizedlist>
+                </revdescription>
+            </revision>
+            <revision>
+                <date>2012-01-16</date>
+                <revdescription>
+                    <itemizedlist spacing="compact">
+                        <listitem>
+                            <para>Updated xml examples to remove extra
+                                white space.</para>
+                        </listitem>
+                    </itemizedlist>
+                </revdescription>
+            </revision>
+            <revision>
                 <date>2012-01-11</date>
                 <revdescription>
-                    <itemizedlist>
+                    <itemizedlist spacing="compact">
                         <listitem>
                             <para>Updated to the new auto-generated
                                 examples. </para>
@@ -83,7 +111,7 @@
             <revision>
                 <date>2011-12-22</date>
                 <revdescription>
-                    <itemizedlist>
+                    <itemizedlist spacing="compact">
                         <listitem>
                             <para>Increased the maximum volume size
                                 per instance in gigabytes (GB) for
@@ -97,7 +125,7 @@
             <revision>
                 <date>2011-12-20</date>
                 <revdescription>
-                    <itemizedlist>
+                    <itemizedlist spacing="compact">
                         <listitem>
                             <para>Added note about using a floating
                                 point value for flavorId parameter in
@@ -132,7 +160,7 @@
             <revision>
                 <date>2011-12-1</date>
                 <revdescription>
-                    <itemizedlist>
+                    <itemizedlist spacing="compact">
                         <listitem>
                             <para>Initial Private Beta Release.</para>
                         </listitem>
@@ -579,7 +607,7 @@
                             <td colspan="5"
                                 ><code>https://ord.databases.api.rackspacecloud.com/v1.0/</code><parameter>1234</parameter>/ </td>
                         </tr>
-                        <tr align="left" security="writeronly">
+                        <tr align="left">
                             <td colspan="2">Dallas/Ft. Worth (DFW)</td>
                             <td colspan="5"
                                 ><code>https://dfw.databases.api.rackspacecloud.com/v1.0/</code><parameter>1234</parameter>/ </td>
@@ -1472,8 +1500,19 @@
                     <wadl:method href="deleteInstance"/>  
                 </wadl:resource>
             </wadl:resources>               
-        </section>      
-        
+        </section>
+
+        <section xml:id="Database_Instances_Actions">
+            <title>Database Instance Actions</title>
+            <para>This section describes the actions that are supported for database instances.</para>
+            <wadl:resources xmlns:wadl="http://wadl.dev.java.net/2009/02">
+                <wadl:resource href="dbaas.wadl#instanceAction" >
+                    <wadl:method href="restartInstance"/>
+                    <wadl:method href="resizeInstance"/>
+                </wadl:resource>
+            </wadl:resources>
+        </section>
+
         <section xml:id="databases">
             <title>Databases</title>
             <para>This section describes the operations that are

@@ -112,6 +112,12 @@ class API(base.Base):
         return rpc.call(context, self._get_routing_key(context, id),
                  {"method": "is_root_enabled"})
 
+    def get_diagnostics(self, context, id):
+        """Make a synchronous call to get diagnostics for the container"""
+        LOG.debug("Check diagnostics on Instance %s", id)
+        return rpc.call(context, self._get_routing_key(context, id),
+                 {"method": "get_diagnostics"})
+
     def prepare(self, context, id, databases):
         """Make an asynchronous call to prepare the guest
            as a database container"""
@@ -119,6 +125,14 @@ class API(base.Base):
         reddwarf_rpc.cast_with_consumer(context, self._get_routing_key(context, id),
                  {"method": "prepare",
                   "args": {"databases": databases}
+                 })
+
+    def restart(self, context, id):
+        """Restart the MySQL server."""
+        LOG.debug(_("Sending the call to restart MySQL on the Guest."))
+        rpc.call(context, self._get_routing_key(context, id),
+                 {"method": "restart",
+                  "args": {}
                  })
 
     def upgrade(self, context, id):

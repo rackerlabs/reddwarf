@@ -32,7 +32,9 @@ from nova.db.sqlalchemy import api as nova_db
 from nova.db.sqlalchemy import models as nova_models
 from nova.db.sqlalchemy.api import require_admin_context
 from nova.db.sqlalchemy.api import require_context
+from nova.db.sqlalchemy.models import FixedIp
 from nova.db.sqlalchemy.models import Instance
+from nova.db.sqlalchemy.models import InstanceTypes
 from nova.db.sqlalchemy.models import Service
 from nova.db.sqlalchemy.models import Volume
 from nova.db.sqlalchemy.session import get_session
@@ -85,8 +87,9 @@ def guest_status_get_list(instance_ids, session=None):
     """
     if not session:
         session = get_session()
+    ids = [str(id) for id in instance_ids]
     result = session.query(models.GuestStatus).\
-                         filter(models.GuestStatus.instance_id.in_(instance_ids)).\
+                         filter(models.GuestStatus.instance_id.in_(ids)).\
                          filter_by(deleted=False)
     if not result:
         raise nova_exception.InstanceNotFound(instance_id=instance_ids)
@@ -143,6 +146,25 @@ def show_instances_on_host(context, id):
                         filter_by(deleted=False).all()
     return result
 
+@require_admin_context
+def instances_mgmt_index(context, deleted=None):
+    session = get_session()
+    instances = session.query(Instance)
+    if deleted is not None:
+        instances = instances.filter_by(deleted=deleted)
+
+    # Join to get the flavor types.
+    # TODO(ed-): The join works, but the model doesn't hand over the columns.
+    #instances = instances.join((InstanceTypes,
+    #    Instance.instance_type_id == InstanceTypes.id))
+
+    # Fetch the instance_types, or "flavors"
+    flavors = session.query(InstanceTypes)
+
+    # Fetch the IPs for mapping.
+    ips = session.query(FixedIp).filter(FixedIp.instance_id != None)
+
+    return instances.all(), flavors.all(), ips.all()
 
 @require_admin_context
 def instance_get_by_state_and_updated_before(context, state, time):
@@ -335,10 +357,10 @@ def localid_from_uuid(uuid):
     session = get_session()
     try:
         result = session.query(Instance).filter_by(uuid=uuid).one()
+        return result['id']
     except NoResultFound:
         LOG.debug("No such instance found.")
-        return None
-    return result['id']
+        raise exception.NotFound()
 
 
 def rsdns_record_create(name, id):

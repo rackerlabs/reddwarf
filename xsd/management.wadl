@@ -27,12 +27,23 @@
           </resource>
       </resource>
       <resource id="instances" path="instances">
+        <method href="#getIndex" name="GET">
+            <request>
+              <param name="deleted" style="query" type="xsd:string" />
+            </request>
+        </method>
         <resource id="instanceId" path="{instanceId}">
           <param name="instanceId" style="template" type="xsd:string"> 
             <doc>The instance ID for the specified database instance.</doc></param>
           <method href="#showinstances"/>
           <resource id="rootdetails" path="root">
               <method href="#getrootdetails"/>
+          </resource>
+          <resource id="diagnostics" path="diagnostics">
+              <method href="#getdiagnosticdetails"/>
+          </resource>
+          <resource id="instanceAction" path="action">
+            <method href="#rebootInstance" />
           </resource>
         </resource>
       </resource>
@@ -101,6 +112,7 @@
     &commonFaults;
     &getFaults;
   </method>
+
   <method name="GET" id="gethostbyid">
     <wadl:doc xml:lang="EN" title="List All Instances for a Host" xmlns="http://docbook.org/ns/docbook">
       <para role="shortdesc">
@@ -108,7 +120,24 @@
       </para>
       <remark>Reviewer: in the DNS project, we have been requested by the customer to provide a table of parameters (should be pulled automatically if parms defined in wadl) and a table of attributes (for calls that allow detailed info about the object created to be specified. No doubt our DB customers will want this too.</remark>
       <remark>Reviewer: These tables probably need 4 columns: name; parameter type: e.g. template, query, etc.; data type: string, etc.; required?; description.</remark>
-      <para>This operation returns the host name, percent of used RAM, total RAM on host, used RAM on host, and a list of the compute instances running on the given host.</para>
+      <para>This operation returns the following information:</para>
+      <itemizedlist spacing="compact">
+        <listitem>
+          <para>host name</para>
+        </listitem>
+        <listitem>
+          <para>percent of RAM used</para>
+        </listitem>
+        <listitem>
+          <para>total RAM on host</para>
+        </listitem>
+        <listitem>
+          <para>used RAM on host</para>
+        </listitem>
+        <listitem>
+          <para>a list of the compute instances running on the given host</para>
+        </listitem>
+      </itemizedlist>
       <para>If the host name does not exist, a 404 not found error is returned.</para>
     </wadl:doc>
     <request>
@@ -140,6 +169,43 @@
     &commonFaults;
     &getFaults;
   </method>
+
+  <method name="GET" id="getIndex">
+    <wadl:doc xml:lang="EN" title="List Management Index of Instances" xmlns="http://docbook.org/ns/docbook">
+      <para role="shortdesc">
+        Lists all of the database instances, optionally filtered by deleted status.
+      </para>
+    </wadl:doc>
+    <request>
+      <representation mediaType="application/xml">
+        <doc>
+            <para xmlns="http://docbook.org/ns/docbook">The following examples show the List All Instances requests:</para>
+          <xsdxt:code href="../apidocs/src/resources/samples/db-mgmt-instance-index-request.xml"/>
+        </doc>
+      </representation>
+      <representation mediaType="application/json">
+        <doc>
+          <xsdxt:code href="../apidocs/src/resources/samples/db-mgmt-instance-index-request.json"/>
+        </doc>
+      </representation>
+    </request>
+    <response status="200">
+      <representation mediaType="application/xml" element="dbaas:ManagementIndexInstances">
+      <doc>
+        <para xmlns="http://docbook.org/ns/docbook">The following examples show the List All Instances response:</para>
+        <xsdxt:code href="../apidocs/src/resources/samples/db-mgmt-instance-index-response.xml"/>
+      </doc>
+      </representation>
+      <representation mediaType="application/json">
+        <doc>
+          <xsdxt:code href="../apidocs/src/resources/samples/db-mgmt-instance-index-response.json"/>
+        </doc>
+      </representation>
+    </response>
+    &commonFaults;
+    &getFaults;
+  </method>
+
   <method name="GET" id="showinstances">
     <wadl:doc xml:lang="EN" title="List Database Instance Status and Details" xmlns="http://docbook.org/ns/docbook">
       <para role="shortdesc">
@@ -147,7 +213,7 @@
       </para>
       <remark>Reviewer: in the DNS project, we have been requested by the customer to provide a table of parameters (should be pulled automatically if parms defined in wadl) and a table of attributes (for calls that allow detailed info about the object created to be specified. No doubt our DB customers will want this too.</remark>
       <remark>Reviewer: These tables probably need 4 columns: name; parameter type: e.g. template, query, etc.; data type: string, etc.; required?; description.</remark>
-      <para>This operation returns detailed information about the status and details for the specified Database Instance.</para>
+      <para>This operation returns detailed information about the status and details for the specified database instance.</para>
     </wadl:doc>
     <request>
       <representation mediaType="application/xml">
@@ -178,7 +244,45 @@
     &commonFaults;
     &getFaults;
   </method>
-  
+
+    <!-- Instance Actions -->
+  <method name="POST" id="rebootInstance">
+    <wadl:doc xml:lang="EN" title="Reboot the Instance"  xmlns="http://docbook.org/ns/docbook">
+      <para role="shortdesc">Perform a reboot of the instance.</para>
+      <para>This operation will reboot the underlying OS along with the mysql instance.</para>
+      <para>This operation does returns a 202 Accepted response.</para>
+    </wadl:doc>
+    <request>
+      <representation mediaType="application/xml" element="dbaas:Reboot">
+        <doc>
+          <para xmlns="http://docbook.org/ns/docbook">The following examples show the Reboot Instance requests:</para>
+          <xsdxt:code href="../apidocs/src/resources/samples/db-instance-reboot-request.xml"/>
+        </doc>
+      </representation>
+      <representation mediaType="application/json" element="dbaas:Reboot">
+        <doc>
+          <xsdxt:code href="../apidocs/src/resources/samples/db-instance-reboot-request.json"/>
+        </doc>
+      </representation>
+    </request>
+    <response status="202">
+      <representation mediaType="application/xml">
+        <doc>
+          <para xmlns="http://docbook.org/ns/docbook">The following examples show the Reboot Instance responses:</para>
+          <xsdxt:code href="../apidocs/src/resources/samples/db-instance-reboot-response.xml"/>
+        </doc>
+      </representation>
+      <representation mediaType="application/json">
+        <doc>
+          <xsdxt:code href="../apidocs/src/resources/samples/db-instance-reboot-response.json"/>
+        </doc>
+      </representation>
+    </response>
+    &commonFaults;
+    &getFaults;
+    &postPutFaults;
+  </method>
+
   <method name="GET" id="indexstorage">
     <wadl:doc xml:lang="EN" title="List Storage Device Details" xmlns="http://docbook.org/ns/docbook">
       <para role="shortdesc">
@@ -224,7 +328,24 @@
         Returns detailed information for the specified account.
       </para>
       <remark>Reviewer: This section needs examples.</remark>
-      <para>This operation returns the account name, id, a list of hosts that have the id, name, and status of each instance on the hosts.</para>
+      <para>This operation returns: </para>
+      <itemizedlist spacing="compact">
+        <listitem>
+          <para>account name</para>
+        </listitem>
+        <listitem>
+          <para>id</para>
+        </listitem>
+        <listitem>
+          <para>list of hosts that have the id</para>
+        </listitem>
+        <listitem>
+          <para>instance name</para>
+        </listitem>
+        <listitem>
+          <para>status of each instance on the hosts</para>
+        </listitem>
+      </itemizedlist>
     </wadl:doc>
     <request>
       <representation mediaType="application/xml">
@@ -445,10 +566,116 @@
     &commonFaults;
     &getFaults;
   </method>
+
   <method name="GET" id="getrootdetails">
+    <wadl:doc xml:lang="EN" title="Get Root Details" xmlns="http://docbook.org/ns/docbook">
+      <para role="shortdesc">
+        Gets the root flag details for the specified instance.
+      </para>
+      <remark>Reviewer: Need the description for the summary table above and the detailed description for the next paragraph.</remark>
+      <para>This operation shows the root flag details for the specified instance.</para>
+    </wadl:doc>
+    <request>
+      <representation mediaType="application/xml">
+        <doc>
+          <para xmlns="http://docbook.org/ns/docbook">The following examples show the Get Root Details requests:</para>
+          <xsdxt:code href="../apidocs/src/resources/samples/db-mgmt-get-root-details-request.xml"/>
+        </doc>
+      </representation>
+      <representation mediaType="application/json">
+        <doc>
+          <xsdxt:code href="../apidocs/src/resources/samples/db-mgmt-get-root-details-request.json"/>
+        </doc>
+      </representation>
+    </request>
       <response status="200">
-          <representation mediaType="application/xml" element="dbaas:RootDetails"/>
-          <representation mediaType="application/json" element="dbaas:RootDetails"/>
+          <representation mediaType="application/xml" element="dbaas:RootDetails">
+            <doc>
+              <para xmlns="http://docbook.org/ns/docbook">The following examples show the Get Root Details responses:</para>
+              <xsdxt:code href="../apidocs/src/resources/samples/db-mgmt-get-root-details-response.xml"/>
+            </doc>
+          </representation>
+          <representation mediaType="application/json" element="dbaas:RootDetails">
+            <doc>
+              <xsdxt:code href="../apidocs/src/resources/samples/db-mgmt-get-root-details-response.json"/>
+            </doc>
+          </representation>
+      </response>
+      &commonFaults;
+      &getFaults;
+  </method>
+
+  <method name="GET" id="getdiagnosticdetails">
+      <wadl:doc xml:lang="EN" title="Get Diagnostics Info" xmlns="http://docbook.org/ns/docbook">
+          <para role="shortdesc">
+              Get the instance agent and other instance diagnostics info.
+          </para>
+          <para>This operation provides the following info for the guest agent managing the specified instance.</para>
+          <table rules="all">
+              <caption>Return attributes for Get Diagnostics Info</caption>
+              <thead>
+                  <tr>
+                      <td colspan="1">Name</td>
+                      <td colspan="3">Description</td>
+                  </tr>
+              </thead>
+              <tbody>
+                  <tr>
+                      <td colspan="1">version</td>
+                      <td colspan="3">The version of the guest installed on the instance.</td>
+                  </tr>
+                  <tr>
+                      <td colspan="1">fdSize</td>
+                      <td colspan="3">Number of file descriptor slots currently allocated.</td>
+                  </tr>
+                  <tr>
+                      <td colspan="1">vmSize</td>
+                      <td colspan="3">Virtual memory size.</td>
+                  </tr>
+                  <tr>
+                      <td colspan="1">vmPeak</td>
+                      <td colspan="3">Peak virtual memory size.</td>
+                  </tr>
+                  <tr>
+                      <td colspan="1">vmRss</td>
+                      <td colspan="3">Resident set size.</td>
+                  </tr>
+                  <tr>
+                      <td colspan="1">vmHwm</td>
+                      <td colspan="3">Peak resident set size ("high water mark").</td>
+                  </tr>
+                  <tr>
+                      <td colspan="1">threads</td>
+                      <td colspan="3">Number of threads in process containing this thread.</td>
+                  </tr>
+              </tbody>
+          </table>
+      </wadl:doc>
+      <request>
+          <representation mediaType="application/xml">
+              <doc>
+                  <para xmlns="http://docbook.org/ns/docbook">The following examples show the Get Diagnostics Info requests:</para>
+                  <xsdxt:code href="../apidocs/src/resources/samples/db-mgmt-instance-diagnostics-request.xml"/>
+              </doc>
+          </representation>
+          <representation mediaType="application/json">
+              <doc>
+                  <xsdxt:code href="../apidocs/src/resources/samples/db-mgmt-instance-diagnostics-request.json"/>
+              </doc>
+          </representation>
+      </request>
+      <response status="200">
+          <representation mediaType="application/xml" element="dbaas:DiagnosticsDetails">
+              <doc>
+                  <para xmlns="http://docbook.org/ns/docbook">The following examples show the Get Diagnostics Info requests:</para>
+                  <xsdxt:code href="../apidocs/src/resources/samples/db-mgmt-instance-diagnostics-response.xml"/>
+              </doc>
+          </representation>
+          <representation mediaType="application/json">
+              <doc>
+                  <xsdxt:code href="../apidocs/src/resources/samples/db-mgmt-instance-diagnostics-response.json"/>
+              </doc>
+          </representation>
       </response>
       &commonFaults;
       &getFaults;
