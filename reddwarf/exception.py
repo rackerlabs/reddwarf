@@ -43,6 +43,15 @@ class NotFound(exc.HTTPNotFound, Exception):
         super(NotFound, self).__init__(errstr)
 
 
+class OverLimit(exc.HTTPRequestEntityTooLarge, Exception):
+    def __init__(self, message="The server rejected the request due to its "
+                               "size or rate."):
+        self.explanation = message
+        self.code = 413
+        errstr = '%s: %s' % (self.code, self.explanation)
+        super(OverLimit, self).__init__(errstr)
+
+
 class UnprocessableEntity(exc.HTTPUnprocessableEntity, Exception):
     def __init__(self, message="Unable to process the contained request"):
         self.explanation = message
@@ -115,6 +124,12 @@ class OutOfInstanceMemory(nova_exception.NovaException):
     message = _("Scheduler unable to find a host with memory left for an "
                 "instance needing %(instance_memory_mb)s MB of RAM.")
 
+class GuestError(nova_exception.NovaException):
+    message = _("An error occurred communicating with the guest: "
+                "%(original_message).")
 
 class PollTimeOut(nova_exception.NovaException):
     message = _("Polling request timed out.")
+
+class UnsupportedDriver(nova_exception.NovaException):
+    message = _("This driver does not support the method requested: %(method)")
