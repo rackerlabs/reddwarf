@@ -15,7 +15,6 @@
 
 from webob import exc
 
-from nova import compute
 from nova import exception as nova_exception
 from nova import flags
 from nova import log as logging
@@ -23,7 +22,9 @@ from nova import log as logging
 from nova.api.openstack import servers
 from nova.api.openstack import wsgi
 from nova.compute import power_state
+from nova import exception as nova_exception
 
+from reddwarf import compute
 from reddwarf import exception
 from reddwarf import volume
 from reddwarf.api import common
@@ -184,10 +185,21 @@ class Controller(object):
 
             # Now associate the IPs.
             # TODO(ed-): A join would be preferable.
+            instance_ips = filter((lambda ip: ip['instance_id'] == instance['id']), ips)
             details['ips'] = [{
                 'address': ip['address'],
                 'virtual_interface_id': ip['virtual_interface_id'],
-                } for ip in ips]
+                } for ip in instance_ips]
+
+            # Associate storage
+            if instance['volumes']:
+                details['volumes'] = [{
+                    'size': volume['size'],
+                    'mountpoint': volume['mountpoint']
+                } for volume in instance['volumes']]
+            else:
+                details['volumes'] = []
+
             result.append(details)
 
         return {"instances": result}
@@ -236,10 +248,15 @@ class Controller(object):
     def action(self, req, id, body):
         """Multi-purpose method used to take actions on an instance."""
         ctxt = req.environ['nova.context']
-        common.instance_exists(ctxt, id, self.compute_api)
+        try:
+            common.instance_exists(ctxt, id, self.compute_api)
+        except nova_exception.NotFound:
+            # Reddwarf NotFound bears an HTTP 404 response payload.
+            raise exception.NotFound()
 
         _actions = {
             'reboot': self._action_reboot,
+            'update': self._action_update,
         }
 
         for key in body:
@@ -262,5 +279,18 @@ class Controller(object):
             self.compute_api.reboot(ctxt, local_id)
             return exc.HTTPAccepted()
         except Exception as err:
-            LOG.exception(_("Error in reboot %s"), e)
+            LOG.exception(_("Error in reboot %s"), err)
             raise exception.UnprocessableEntity()
+
+    def _action_update(self, body, req, id):
+        LOG.info("Call to update guest agent for instance %s", id)
+        LOG.debug("%s - %s", req.environ, req.body)
+        ctxt = req.environ['nova.context']
+        local_id = dbapi.localid_from_uuid(id)
+
+        try:
+            self.compute_api.update_guest(ctxt, local_id)
+            return exc.HTTPAccepted()
+        except nova_exception.InstanceNotFound as err:
+            LOG.exception(_("Error in update guest agent: %s"), err)
+            raise exception.NotFound()
