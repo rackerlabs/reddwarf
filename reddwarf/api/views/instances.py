@@ -69,7 +69,10 @@ class ViewBuilder(object):
     @staticmethod
     def _build_links(req, instance):
         """Build the links for the instance"""
-        base_url = _base_url(req)
+
+        # Fixup the base url to make sure we return https
+        base_url = str(_base_url(req)).replace('http:', 'https:')
+
         href = os.path.join(base_url, _project_id(req),
                             "instances", str(instance['id']))
         bookmark = os.path.join(nova_common.remove_version_from_href(base_url),
@@ -96,17 +99,19 @@ class ViewBuilder(object):
         instance = self._build_detail(server, req, instance)
         return instance
 
-    def build_single(self, server, req, status_lookup, databases=None,
-                     root_enabled=False, create=False):
+    def build_single(self, server, req, status_lookup, create=False,
+                     root_enabled=False, volume_info=None):
         """
         Given a server (obtained from the servers API) returns an instance.
         """
         instance = self._build_basic(server, req, status_lookup)
         instance = self._build_detail(server, req, instance)
         if not create:
-            # Add Database and root_enabled
-            instance['databases'] = databases
+            # Add root_enabled and volume_info
             instance['rootEnabled'] = root_enabled
+            if volume_info:
+                used_in_gb = volume_info['used']/1024.0**3
+                instance['volume']['used'] = used_in_gb
 
         return instance
 

@@ -15,7 +15,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from webob import exc
+import webob
 
 from nova import compute
 from nova import log as logging
@@ -61,7 +61,10 @@ class Controller(object):
         for user in result:
             mysql_user = models.MySQLUser()
             mysql_user.deserialize(user)
-            users['users'].append({'name': mysql_user.name})
+            dbs = []
+            for db in mysql_user.databases:
+                dbs.append({'name': db['_name']})
+            users['users'].append({'name': mysql_user.name, 'databases': dbs})
         LOG.debug("LIST USERS RETURN - %s", users)
         return users
 
@@ -81,7 +84,7 @@ class Controller(object):
             raise exception.BadRequest(ve.message)
 
         self.guest_api.delete_user(ctxt, local_id, user.serialize())
-        return exc.HTTPAccepted()
+        return webob.Response(status_int=202)
 
     def create(self, req, instance_id, body):
         """ Creates a new user for the db instance """
@@ -95,7 +98,7 @@ class Controller(object):
 
         users = common.populate_users(body.get('users', ''))
         self.guest_api.create_user(ctxt, local_id, users)
-        return exc.HTTPAccepted()
+        return webob.Response(status_int=202)
 
     def _validate(self, body):
         """Validate that the request has all the required parameters"""

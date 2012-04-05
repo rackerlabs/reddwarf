@@ -116,7 +116,8 @@ class ExampleGenerator(object):
     def output_request(self, url, output_headers, body, content_type, method):
         output_list = []
         parsed = urlparse(url)
-        output_list.append("%s %s HTTP/1.1" % (method, parsed.path))
+        query = '?' + parsed.query if parsed.query else ''
+        output_list.append("%s %s%s HTTP/1.1" % (method, parsed.path, query))
         output_list.append("User-Agent: %s" % output_headers['User-Agent'])
         output_list.append("Host: %s" % parsed.netloc)
         output_list.append("X-Auth-Token: %s" % output_headers['X-Auth-Token'])
@@ -256,6 +257,17 @@ class ExampleGenerator(object):
                         "name": "nextround"
                     }
                 ],
+                "users": [
+                    {
+                        "name": "demouser",
+                        "password": "demopassword",
+                        "databases": [
+                            {
+                                "name": "sampledb"
+                            }
+                        ]
+                    }
+                ],
                 "volume":
                         {
                         "size": "2"
@@ -268,6 +280,13 @@ class ExampleGenerator(object):
                     '<database name="sampledb" character_set="utf8" collate="utf8_general_ci" />'
                     '<database name="nextround" />'
                     '</databases>'
+                    '<users>'
+                    '<user name="demouser" password="demopassword">'
+                    '<databases>'
+                    '<database name="sampledb"/>'
+                    '</databases>'
+                    '</user>'
+                    '</users>'
                     '<volume size="2" />'
                     '</instance>') % self.dbaas_url
         req_json['body'] = json.dumps(JSON_DATA)
@@ -327,7 +346,7 @@ class ExampleGenerator(object):
                     {
                     "name": "dbuser3",
                     "password": "password",
-                    "database": "databaseA"
+                    "databases": [{"name": "databaseA"}]
                 },
                     {
                     "name": "dbuser4",
@@ -345,7 +364,11 @@ class ExampleGenerator(object):
         }
         XML_DATA = ('<?xml version="1.0" ?>'
                     '<users xmlns="http://docs.openstack.org/database/api/v1.0">'
-                    '<user name="%s" password="password" database="databaseC"/>'
+                    '<user name="%s" password="password">'
+                    '<databases>'
+                    '<database name="databaseC"/>'
+                    '</databases>'
+                    '</user>'
                     '<user name="userwith2dbs" password="password">'
                     '<databases>'
                     '<database name="databaseA"/>'
@@ -535,16 +558,21 @@ class ExampleGenerator(object):
         self.http_call("mgmt_get_host_detail", 'GET', req_json, req_xml)
 
     def mgmt_instance_index(self, deleted=None):
-        req_json = {"url": "%s/mgmt/instances" % self.dbaas_url}
-        req_xml = {"url": "%s/mgmt/instances" % self.dbaas_url}
+        url = "%s/mgmt/instances%%s" % self.dbaas_url
+        req_json = {}
+        req_xml = {}
+        flag = ''
+        query = ''
         if deleted is not None:
             if deleted:
-                req_json['url'] = "%s?deleted=true" % req_json['url']
-                req_xml['url'] = "%s?deleted=true" % req_xml['url']
+                query='?deleted=true'
+                flag = '_deleted'
             else:
-                req_json['url'] = "%s?deleted=false" % req_json['url']
-                req_xml['url'] = "%s?deleted=false" % req_xml['url']
-        self.http_call("mgmt_instance_index", 'GET', req_json, req_xml)
+                query='?deleted=false'
+                flag = '_not_deleted'
+        req_xml['url'] = url % query
+        req_json['url'] = url % query
+        self.http_call("mgmt_instance_index%s" % flag, 'GET', req_json, req_xml)
 
     def mgmt_get_instance_diagnostics(self, instance_ids):
         req_json = {"url": "%s/mgmt/instances/%s/diagnostics"
@@ -645,7 +673,9 @@ class ExampleGenerator(object):
         self.mgmt_get_account_details()
         self.mgmt_get_instance_details(instance_ids)
         self.mgmt_get_root_details(instance_ids)
-        self.mgmt_instance_index(False)
+        self.mgmt_instance_index(deleted=None)
+        self.mgmt_instance_index(deleted=True)
+        self.mgmt_instance_index(deleted=False)
         self.mgmt_get_instance_diagnostics(instance_ids)
         self.mgmt_instance_guest_update(instance_ids)
         self.mgmt_instance_reboot(instance_ids)

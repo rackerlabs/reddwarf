@@ -17,18 +17,24 @@ import unittest
 
 from nose.tools import raises
 
+from nova import test
+
 from reddwarf import exception
 from reddwarf.api import deserializer
 
 
-class DeserializationTest(unittest.TestCase):
+class DeserializationTest(test.TestCase):
     """Test all the xml deserialization"""
 
     def setUp(self):
+        super(DeserializationTest, self).setUp()
         self.config_deser = deserializer.ConfigXMLDeserializer()
         self.db_deser = deserializer.DatabaseXMLDeserializer()
         self.instance_deser = deserializer.InstanceXMLDeserializer()
         self.user_deser = deserializer.UserXMLDeserializer()
+
+    def tearDown(self):
+        super(DeserializationTest, self).tearDown()
 
     def test_config_create_single(self):
         xml = '<configs> \
@@ -160,3 +166,65 @@ class DeserializationTest(unittest.TestCase):
     def test_create_user_no_users(self):
         self.user_deser.create("""<users />""")
         
+    def test_create_user_database_old_format(self):
+        users = self.user_deser.create("""
+            <users xmlns="http://docs.openstack.org/database/api/v1.0">
+                <user name="test" password="password" database="databaseA"/>
+            </users>
+            """)
+        users_dict = {'body': {'users': [{'name': 'test',
+                                          'password': 'password'}]}}
+        self.assertDictMatch(users, users_dict)
+
+    def test_create_user_databases(self):
+        users = self.user_deser.create("""
+            <users xmlns="http://docs.openstack.org/database/api/v1.0">
+                <user name="test" password="password">
+                    <databases>
+                        <database name="dbA" />
+                        <database name="dbB" />
+                    </databases>
+                </user>
+            </users>
+            """)
+        users_dict = {'body': {'users':
+                                [{'name': 'test',
+                                  'password': 'password',
+                                  'databases': [{'name': 'dbA', 'collate': '',
+                                                 'character_set': ''},
+                                                {'name': 'dbB', 'collate': '',
+                                                 'character_set': ''}]}]}}
+        self.assertDictMatch(users, users_dict)
+
+    def test_create_instance_database_users(self):
+        instance = self.instance_deser.create("""
+                <instance xmlns="http://docs.openstack.org/database/api/v1.0"
+                    name="testinstance" flavorRef="https://ord.databases.api.rackspacecloud.com/v1.0/1234/flavors/1">
+                    <databases>
+                        <database name="testdb"/>
+                    </databases>
+                    <users>
+                        <user name="test" password="password">
+                            <databases>
+                                <database name="testdb" />
+                            </databases>
+                        </user>
+                    </users>
+                    <volume size="2" />
+                </instance>
+                """)
+        expected_dict = {'body':
+                            {'instance':
+                                {'name': 'testinstance',
+                                 'flavorRef': 'https://ord.databases.api.rackspacecloud.com/v1.0/1234/flavors/1',
+                                 'databases': [{'name': 'testdb', 'collate': '',
+                                                'character_set': ''}],
+                                 'users': [{'name': 'test', 'password': 'password',
+                                            'databases': [{'name': 'testdb',
+                                                           'character_set': '',
+                                                           'collate': ''}]}],
+                                 'volume': {'size': '2'}
+                                }
+                             }
+                        }
+        self.assertDictMatch(instance, expected_dict)

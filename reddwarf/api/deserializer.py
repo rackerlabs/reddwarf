@@ -63,7 +63,7 @@ class XMLDeserializer(wsgi.XMLDeserializer):
         users = []
         for user in user_nodes:
             user_data = dict()
-            for attr in ["name", "password", "database"]:
+            for attr in ["name", "password"]:
                 if user.hasAttribute(attr):
                     user_data[attr] = user.getAttribute(attr)
             dbs_node = self._find_first_child_named(user, "databases")
@@ -119,12 +119,16 @@ class InstanceXMLDeserializer(XMLDeserializer):
         if not instance_node:
             raise exception.BadRequest("Required element/key 'instance' was "
                                        "not specified")
-        for attr in ["name", "port", "flavorRef"]:
+        for attr in ["name", "flavorRef"]:
             instance[attr] = instance_node.getAttribute(attr)
         #dbtype = self._extract_dbtype(instance_node)
         databases = self._extract_databases(instance_node)
         if databases is not None:
             instance["databases"] = databases
+
+        users = self._extract_users(instance_node)
+        if users is not None:
+            instance["users"] = users
         #instance["dbtype"] = dbtype
         instance["volume"] = self._extract_volume(instance_node)
         return instance

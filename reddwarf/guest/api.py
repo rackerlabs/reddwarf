@@ -119,14 +119,15 @@ class API(base.Base):
         return rpc.call(context, self._get_routing_key(context, id),
                  {"method": "get_diagnostics"})
 
-    def prepare(self, context, id, memory_mb, databases):
+    def prepare(self, context, id, memory_mb, databases=None, users=None):
         """Make an asynchronous call to prepare the guest
            as a database container"""
         LOG.debug(_("Sending the call to prepare the Guest"))
         reddwarf_rpc.cast_with_consumer(context, self._get_routing_key(context, id),
                  {"method": "prepare",
                   "args": {"databases": databases,
-                           "memory_mb":memory_mb}
+                           "memory_mb":memory_mb,
+                           "users": users}
                  })
 
     def restart(self, context, id):
@@ -168,3 +169,13 @@ class API(base.Base):
                  "args": {}
             })
 
+    def get_volume_info(self, context, id):
+        """Make a synchronous call to get volume info for the container"""
+        LOG.debug("Check Volume Info on Instance %s", id)
+        try:
+            return rpc.call(context, self._get_routing_key(context, id),
+                            {"method": "get_filesystem_stats",
+                             "args": {"fs_path": "/var/lib/mysql"}})
+        except Exception as e:
+            LOG.error(e)
+            raise exception.GuestError(original_message=str(e))

@@ -54,6 +54,8 @@ class TestUsers(object):
     db2 = "seconddb"
 
     created_users = [username, username1]
+    expected_user_db_association = {username: [], username1: [db1, db2],
+                                    'lite': ['firstdb']}
     system_users = ['root', 'debian_sys_maint']
 
     @before_class
@@ -72,8 +74,8 @@ class TestUsers(object):
         # Do we need this?
         time.sleep(5)
 
-        self.check_database_for_user(self.username, self.password,
-                                    [self.db1])
+        assert_true(self.db1 not in self.show_databases(self.username,
+                                                        self.password))
         self.check_database_for_user(self.username1, self.password1,
                                     [self.db1, self.db2])
 
@@ -85,6 +87,9 @@ class TestUsers(object):
         for user in self.created_users:
             for result in users:
                 if user == result.name:
+                    # Verify that they have the associated databases
+                    user_dbs = [db['name'] for db in result.databases]
+                    assert_equal(user_dbs, self.expected_user_db_association[user])
                     found = True
             assert_true(found, "User '%s' not found in result" % user)
             found = False
@@ -108,14 +113,18 @@ class TestUsers(object):
         self._check_connection(self.username, self.password)
         self._check_connection(self.username1, self.password1)
 
-    def check_database_for_user(self, user, password, dbs):
-        cmd = "sudo mysql    -h %s -u '%s' -p'%s' -e 'show databases;'" \
-              % (instance_info.user_ip, user, password)
+    def show_databases(self, user, password):
+        cmd = "sudo mysql -h %s -u '%s' -p'%s' -e 'show databases;'"\
+                % (instance_info.user_ip, user, password)
         print("Running cmd: %s" % cmd)
         dblist, err = process(cmd)
         print("returned: %s" % dblist)
         if err:
             assert_false(True, err)
+        return dblist
+
+    def check_database_for_user(self, user, password, dbs):
+        dblist = self.show_databases(user, password)
         for db in dbs:
             default_db = re.compile("[\w\n]*%s[\w\n]*" % db)
             if not default_db.match(dblist):
@@ -144,12 +153,12 @@ class TestUsers(object):
         users = []
         username_with_period = "user.name"
         users.append({"name": username_with_period, "password": self.password,
-                      "database": self.db1})
+                      "databases": [{"name": self.db1}]})
         self.dbaas.users.create(instance_info.id, users)
         time.sleep(5)
 
         self.check_database_for_user(username_with_period, self.password,
-            [self.db1])
+                                     [self.db1])
         self.dbaas.users.delete(instance_info.id, username_with_period)
 
     @test

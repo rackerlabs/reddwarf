@@ -95,6 +95,7 @@ class InstanceTestInfo(object):
         self.databases = None # The databases created on the instance.
         self.host_info = None # Host Info before creating instances
         self.user_context = None # A regular user context
+        self.users = None # The users created on the instance.
 
     def check_database(self, dbname):
         return check_database(self.get_local_id(), dbname)
@@ -234,12 +235,27 @@ class CreateInstance(unittest.TestCase):
                       "way_too_large", instance_info.dbaas_flavor_href,
                       {'size': too_big + 1}, [])
 
+    def test_instance_quota_error(self):
+        single_user = {"name": "test", "password": "test",
+                       "databases": [{"name": "testdb"}]}
+        users = []
+        for i in range(100):
+            users.append(single_user)
+
+        assert_raises(nova_exceptions.BadRequest, dbaas.instances.create,
+                      "user_quota", instance_info.dbaas_flavor_href,
+                      {'size': 1}, [], users)
+
     def test_create(self):
         databases = []
         databases.append({"name": "firstdb", "character_set": "latin2",
                           "collate": "latin2_general_ci"})
         databases.append({"name": "db2"})
         instance_info.databases = databases
+        users = []
+        users.append({"name": "lite", "password": "litepass",
+                      "databases": [{"name": "firstdb"}]})
+        instance_info.users = users
         instance_info.volume = {'size': 2}
 
         if create_new_instance():
@@ -247,7 +263,7 @@ class CreateInstance(unittest.TestCase):
                                                instance_info.name,
                                                instance_info.dbaas_flavor_href,
                                                instance_info.volume,
-                                               databases)
+                                               databases, users)
         else:
             id = existing_instance()
             instance_info.initial_result = dbaas.instances.get(id)
@@ -477,6 +493,28 @@ class TestVolume(unittest.TestCase):
 
 
 @test(depends_on_classes=[WaitForGuestInstallationToFinish],
+      groups=[GROUP, GROUP_TEST])
+class TestAfterInstanceCreatedGuestData(object):
+    """
+    Test the optional parameters (databases and users) passed in to create
+    instance call were created.
+    """
+
+    @test
+    def test_databases(self):
+        for db in instance_info.databases:
+            if not instance_info.check_database(db["name"]):
+                fail("Database '%s' was not created" % db["name"])
+
+    @test
+    def test_users(self):
+        users = dbaas.users.list(instance_info.id)
+        usernames = [user.name for user in users]
+        for user in instance_info.users:
+            assert_true(user["name"] in usernames)
+
+
+@test(depends_on_classes=[WaitForGuestInstallationToFinish],
       groups=[GROUP, GROUP_START, "dbaas.listing"])
 class TestInstanceListing(object):
     """ Test the listing of the instance information """
@@ -513,7 +551,7 @@ class TestInstanceListing(object):
 
     @test
     def test_get_instance(self):
-        expected_attrs = ['created', 'databases', 'flavor', 'hostname', 'id',
+        expected_attrs = ['created', 'flavor', 'hostname', 'id',
                           'links', 'name', 'rootEnabled', 'status', 'updated',
                           'volume']
         instance = dbaas.instances.get(instance_info.id)
@@ -524,7 +562,6 @@ class TestInstanceListing(object):
         CheckInstance(instance_dict).flavor()
         CheckInstance(instance_dict).links(instance_dict['links'])
         CheckInstance(instance_dict).volume()
-        CheckInstance(instance_dict).databases()
 
     @test
     def test_instance_hostname(self):
@@ -557,6 +594,7 @@ class TestInstanceListing(object):
     def test_volume_found(self):
         instance = dbaas.instances.get(instance_info.id)
         assert_equal(instance_info.volume['size'], instance.volume['size'])
+        assert_true(0.12 < instance.volume['used'] < 0.25)
 
     @test
     def test_index_detail_match_for_regular_user(self):
@@ -677,6 +715,14 @@ class VerifyInstanceMgmtInfo(unittest.TestCase):
         # The client reshapes the exception into just an OpenStackException.
         assert_raises(nova_exceptions.NotFound, dbaas_admin.management.show, -1)
 
+    def test_mgmt_ips_associated(self):
+        # Test that the management index properly associates an instances with
+        # ONLY its IPs.
+        mgmt_index = dbaas_admin.management.index()
+        # Every instances has exactly one address.
+        for instance in mgmt_index:
+            self.assertEqual(1, len(instance.ips))
+
     def test_mgmt_data(self):
         # Test that the management API returns all the values we expect it to.
         info = instance_info
@@ -701,7 +747,6 @@ class VerifyInstanceMgmtInfo(unittest.TestCase):
                 'character_set': 'latin2',
                 'collate': 'latin2_general_ci',
                 }],
-            'users': [],
             'volume': {
                 'id': volume.id,
                 'name': volume.display_name,
@@ -720,6 +765,11 @@ class VerifyInstanceMgmtInfo(unittest.TestCase):
             self.assertEqual(getattr(mgmt_details, k), v,
                 "Attr %r expected to be %r but was %r." %
                 (k, v, getattr(mgmt_details, k)))
+        print(mgmt_details.users)
+        for user in mgmt_details.users:
+            self.assertTrue('name' in user, "'name' not in users element.")
+
+
 
 
 class CheckInstance(object):
@@ -747,7 +797,7 @@ class CheckInstance(object):
         self.links(self.instance['flavor']['links'])
 
     def volume(self):
-        expected_attrs = ['size']
+        expected_attrs = ['size', 'used']
         self.attrs_exist(self.instance['volume'], expected_attrs,
                          msg="Volumes")
 

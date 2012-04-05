@@ -13,7 +13,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from webob import exc
+import webob
 
 from nova import exception as nova_exception
 from nova import flags
@@ -206,8 +206,8 @@ class Controller(object):
 
     def _get_guest_info(self, context, id, status, instance):
         """Get all the guest details and add it to the response"""
-        dbs = None
-        users = None
+        dbs = []
+        users = []
         if status.is_sql_running:
             db_list = self.guest_api.list_databases(context, id)
 
@@ -277,7 +277,7 @@ class Controller(object):
 
         try:
             self.compute_api.reboot(ctxt, local_id)
-            return exc.HTTPAccepted()
+            return webob.Response(status_int=202)
         except Exception as err:
             LOG.exception(_("Error in reboot %s"), err)
             raise exception.UnprocessableEntity()
@@ -290,7 +290,7 @@ class Controller(object):
 
         try:
             self.compute_api.update_guest(ctxt, local_id)
-            return exc.HTTPAccepted()
+            return webob.Response(status_int=202)
         except nova_exception.InstanceNotFound as err:
             LOG.exception(_("Error in update guest agent: %s"), err)
             raise exception.NotFound()

@@ -18,11 +18,13 @@
 import copy
 import json
 from webob import exc
+import webob
 
 from nova import db
 from nova import exception as nova_exception
 from nova import flags
 from nova import log as logging
+from nova import quota
 from nova.api.openstack import common as nova_common
 from nova.api.openstack import faults
 from nova.api.openstack import servers
@@ -57,6 +59,8 @@ flags.DEFINE_string('reddwarf_volume_description',
 flags.DEFINE_integer('reddwarf_max_accepted_volume_size', 128,
                     'Maximum accepted volume size (in gigabytes) when creating'
                     ' an instance.')
+flags.DEFINE_integer('metadata_max_size', 5000,
+                     'Max size of the Metadata value column.')
 
 
 def publisher_id(host=None):
@@ -102,7 +106,7 @@ class Controller(object):
         Controller._validate_restart_instance(id, instance['vm_state'])
         try:
             self.compute_api.restart(ctxt, instance['id'])
-            return exc.HTTPAccepted()
+            return webob.Response(status_int=202)
         except Exception as err:
             LOG.error(err)
             raise exception.InstanceFault("Error restarting MySQL.")
@@ -117,7 +121,7 @@ class Controller(object):
         self.volume_api.resize(context, volume_ref['id'], new_size)
         # Kickoff rescaning and resizing the filesystem
         self.compute_api.resize_volume(context, volume_ref['id'])
-        return exc.HTTPAccepted()
+        return webob.Response(status_int=202)
 
     def _resize_instance_action(self, context, body, id):
         # Validate the size attributes
@@ -145,7 +149,7 @@ class Controller(object):
             msg = "When resizing, instances must change size!"
             raise exception.BadRequest(msg)
 
-        return exc.HTTPAccepted()
+        return webob.Response(status_int=202)
 
     def _action_resize(self, body, req, id):
         """
@@ -228,15 +232,16 @@ class Controller(object):
         server = server_response['server']
 
         status_lookup = InstanceStatusLookup([server['id']])
-        databases = None
         root_enabled = None
+        volume_info = None
         if status_lookup.get_status_from_server(server).is_sql_running:
-            databases, root_enabled = self._get_guest_info(context, server['id'])
+            root_enabled, volume_info = self._get_guest_info(context,
+                                                             server['id'])
         instance = self.view.build_single(server,
                                           req,
                                           status_lookup,
-                                          databases=databases,
-                                          root_enabled=root_enabled)
+                                          root_enabled=root_enabled,
+                                          volume_info=volume_info)
         LOG.debug("instance - %s" % instance)
         return {'instance': instance}
 
@@ -285,7 +290,7 @@ class Controller(object):
         self.server_controller.delete(req, instance_id)
         #TODO(rnirmal): Use a deferred here to update status
         dbapi.guest_status_delete(instance_id)
-        return exc.HTTPAccepted()
+        return webob.Response(status_int=202)
 
     def create(self, req, body):
         """ Creates a new Instance for a given user """
@@ -355,6 +360,11 @@ class Controller(object):
         except (TypeError, AttributeError, KeyError) as e:
             LOG.error(e)
             raise exception.UnprocessableEntity()
+        except quota.QuotaError as qe:
+            LOG.error(qe)
+            raise exception.BadRequest("Exceeded the max allowable size of "
+                                       "'%r' chars for database/user fields."
+                                       % FLAGS.metadata_max_size)
 
     @staticmethod
     def _create_server_dict(instance, volume_id, mount_point):
@@ -384,7 +394,9 @@ class Controller(object):
         # We create these once and throw away the result to take advantage
         # of the validators.
         db_list = common.populate_databases(instance.get('databases', []))
+        user_list = common.populate_users(instance.get('users', []))
         server['metadata']['database_list'] = json.dumps(db_list)
+        server['metadata']['user_list'] = json.dumps(user_list)
         return server
 
     def _setup_security_groups(self, context, group_name, port):
@@ -421,19 +433,16 @@ class Controller(object):
                                                           security_group['id'])
 
     def _get_guest_info(self, context, id):
-        """Get the list of databases on a instance"""
+        """Get the root and volume information from the guest"""
+        root_enabled = None
+        volume_info = None
         try:
-            result = self.guest_api.list_databases(context, id)
-            databases = [{'name': db['_name'],
-                         'collate': db['_collate'],
-                         'character_set': db['_character_set']}
-                         for db in result]
             root_enabled = self.guest_api.is_root_enabled(context, id)
-            return databases, root_enabled
+            volume_info = self.guest_api.get_volume_info(context, id)
         except Exception as err:
             LOG.error(err)
-            LOG.error("guest not responding on instance %s" % id)
-            return None, None
+            LOG.error("Guest not responding on instance %s" % id)
+        return root_enabled, volume_info
 
     @staticmethod
     def _validate_empty_body(body):
@@ -545,7 +554,7 @@ def create_resource(version='1.0'):
             'dbtype': ['name', 'version'],
             'flavor': ['id'],
             'link': ['rel', 'href'],
-            'volume': ['size'],
+            'volume': ['size', 'used'],
             'database': ['name', 'collate', 'character_set'],
         },
     }

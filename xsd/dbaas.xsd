@@ -100,7 +100,7 @@
          <element name="users" type="dbaas:User" minOccurs="1" maxOccurs="unbounded">
            <annotation>
              <xsd:documentation xml:lang="EN" xmlns="http://www.w3.org/1999/xhtml">
-               <p>A list of database names.</p>
+               <p>A list of database user names.</p>
              </xsd:documentation>
            </annotation>
          </element>
@@ -138,13 +138,6 @@
         </xsd:documentation>
       </annotation>
     </attribute>
-    <attribute name="database" type="xsd:string" use="optional">
-      <annotation>
-        <xsd:documentation xml:lang="EN" xmlns="http://www.w3.org/1999/xhtml">
-          <p>A single convenience method for adding a user to the single database.</p>
-        </xsd:documentation>
-      </annotation>
-    </attribute>
   </complexType>
 
   <complexType name="instances">
@@ -161,14 +154,21 @@
 
   <complexType name="instance">
    <sequence>
-      <element name="databases" type="dbaas:Database" minOccurs="0" maxOccurs="unbounded">
+      <xsd:element name="databases" type="dbaas:Database" minOccurs="0" maxOccurs="unbounded">
          <annotation>
            <xsd:documentation xml:lang="EN" xmlns="http://www.w3.org/1999/xhtml">
              <p>A list of optional databases.</p>
            </xsd:documentation>
          </annotation>
-       </element>
-       <xsd:element name="links" type="dbaas:Links" minOccurs="0" maxOccurs="1">
+      </xsd:element>
+      <xsd:element name="users" type="dbaas:User" minOccurs="0" maxOccurs="unbounded">
+           <annotation>
+               <xsd:documentation xml:lang="EN" xmlns="http://www.w3.org/1999/xhtml">
+                   <p>A list of optional users.</p>
+               </xsd:documentation>
+           </annotation>
+      </xsd:element>
+      <xsd:element name="links" type="dbaas:Links" minOccurs="0" maxOccurs="1">
            <annotation>
            <xsd:documentation xml:lang="EN" xmlns="http://www.w3.org/1999/xhtml">
              <p>The links for the type of instance.</p>
@@ -373,6 +373,13 @@
       <annotation>
         <xsd:documentation xml:lang="EN" xmlns="http://www.w3.org/1999/xhtml">
           <p>Size of the volume in GBs.</p>
+        </xsd:documentation>
+      </annotation>
+    </attribute>
+    <attribute name="used" type="xsd:float" use="required">
+      <annotation>
+        <xsd:documentation xml:lang="EN" xmlns="http://www.w3.org/1999/xhtml">
+          <p>Used space on the attached volume in GBs.</p>
         </xsd:documentation>
       </annotation>
     </attribute>

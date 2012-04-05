@@ -90,6 +90,7 @@ class ReddwarfInstanceMetaData(object):
                                                "/mnt/" + str(self.volume_id))
         # Get the databases to create along with this instance.
         self.databases = json.loads(metadata['database_list'])
+        self.users = json.loads(metadata['user_list'])
 
 
 class ReddwarfInstanceInitializer(object):
@@ -104,7 +105,7 @@ class ReddwarfInstanceInitializer(object):
 
     def __init__(self, compute_manager, db, context, instance_id,
                  volume_id=None, volume=None, volume_mount_point=None,
-                 databases=None):
+                 databases=None, users=None):
         """Creates a new instance."""
         self.db = db
         self.context = context
@@ -113,6 +114,7 @@ class ReddwarfInstanceInitializer(object):
         self.volume = volume
         self.volume_mount_point = volume_mount_point
         self.databases = databases
+        self.users = users
         self.compute_manager = compute_manager
         self.volume_api = volume_api.API()
 
@@ -162,20 +164,30 @@ class ReddwarfInstanceInitializer(object):
         volume_api.update(self.context, self.volume_id, {})
 
     def initialize_guest(self, guest_api):
-        """Tell the guest to initialize itself and wait for it to happen.
-
-        This method aborts the guest if there's a timeout.
-
-        """
+        """Tell the guest to initialize itself."""
         try:
             instance_ref = self.db.instance_get(self.context, self.instance_id)
             memory_mb = instance_ref['memory_mb']
             guest_api.prepare(self.context, self.instance_id, memory_mb,
-                                          self.databases)
+                              self.databases, self.users)
+            return True
+        except Exception as e:
+            LOG.error(e)
+            self._notify_of_failure(
+                exception=e,
+                event_type='reddwarf.instance.abort.guest',
+                audit_msg=_("Aborting instance %(instance_id)d because the "
+                            "guest prepare call failed."))
+            self._abort_guest_install()
+            return False
+
+    def wait_for_guest(self, guest_api):
+        """Wait for the guest to come up and abort if it fails or times out."""
+        try:
             poll_until(lambda : dbapi.guest_status_get(self.instance_id),
-                             lambda status : status.state == power_state.RUNNING,
-                             sleep_time=2,
-                             time_out=FLAGS.reddwarf_guest_initialize_time_out)
+                       lambda status : status.state == power_state.RUNNING,
+                       sleep_time=2,
+                       time_out=FLAGS.reddwarf_guest_initialize_time_out)
             LOG.info("Guest is now running on instance %s" % self.instance_id)
             return True
         except exception.PollTimeOut as pto:
@@ -344,12 +356,13 @@ class ReddwarfComputeManager(ComputeManager):
         metadata = ReddwarfInstanceMetaData(self.db, context, instance_id)
         instance = ReddwarfInstanceInitializer(self.compute_manager, self.db,
             context, instance_id, metadata.volume_id, metadata.volume,
-            metadata.volume_mount_point, metadata.databases)
+            metadata.volume_mount_point, metadata.databases, metadata.users)
         # If any steps return False, cancel subsequent steps.
         (instance.initialize_volume(self.volume_api,
                                     self.volume_client, self.host) and
+         instance.initialize_guest(self.guest_api) and
          instance.initialize_compute_instance(**kwargs) and
-         instance.initialize_guest(self.guest_api))
+         instance.wait_for_guest(self.guest_api))
 
     def terminate_instance(self, context, instance_id):
         """Terminate the instance and also delete all the attached volumes"""
