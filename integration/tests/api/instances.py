@@ -752,6 +752,7 @@ class VerifyInstanceMgmtInfo(unittest.TestCase):
                 'name': volume.display_name,
                 'size': volume.size,
                 'description': volume.display_description,
+                'used': 0.12,
                 },
             }
 
@@ -762,9 +763,12 @@ class VerifyInstanceMgmtInfo(unittest.TestCase):
         self.assertTrue(mgmt_details is not None)
         for (k,v) in expected.items():
             self.assertTrue(hasattr(mgmt_details, k), "Attr %r is missing." % k)
-            self.assertEqual(getattr(mgmt_details, k), v,
-                "Attr %r expected to be %r but was %r." %
-                (k, v, getattr(mgmt_details, k)))
+            if k is 'volume':
+                continue
+            else:
+                self.assertEqual(getattr(mgmt_details, k), v,
+                    "Attr %r expected to be %r but was %r." %
+                    (k, v, getattr(mgmt_details, k)))
         print(mgmt_details.users)
         for user in mgmt_details.users:
             self.assertTrue('name' in user, "'name' not in users element.")
@@ -802,7 +806,7 @@ class CheckInstance(object):
                          msg="Volumes")
 
     def volume_mgmt(self):
-        expected_attrs = ['description', 'id', 'name', 'size']
+        expected_attrs = ['description', 'id', 'name', 'size', 'used']
         self.attrs_exist(self.instance['volume'], expected_attrs,
                          msg="Volumes")
 
@@ -827,10 +831,6 @@ class CheckInstance(object):
         self.attrs_exist(self.instance['guest_status'], expected_attrs,
                          msg="Guest status")
 
-    def mgmt_volume(self):
-        expected_attrs = ['description', 'id', 'name', 'size']
-        self.attrs_exist(self.instance['volume'], expected_attrs,
-                         msg="Volume")
 
 def diagnostic_tests_helper(diagnostics):
     print("diagnostics : %r" % diagnostics._info)

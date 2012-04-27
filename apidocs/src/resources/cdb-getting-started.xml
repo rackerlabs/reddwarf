@@ -31,173 +31,26 @@
          xmlns:m="http://www.w3.org/1998/Math/MathML"
          xmlns:html="http://www.w3.org/1999/xhtml"
          xml:id="cdb-getting-started"
-         class="specification"
-         status="draft">
-    <?rax status.bar.text="BETA"?>
+         class="specification">
+    <?rax status.bar.text="Early Access"?>
     <info>
-        <title>Getting Started with Rackspace Cloud Database and
+        <title>Getting Started with Rackspace Cloud Databases and
             Servers</title>
         <copyright>
             <year>2011</year>
             <year>2012</year>
             <holder>Rackspace US, Inc.</holder>
         </copyright>
-        <releaseinfo>API v1.0 BETA</releaseinfo>
-        <pubdate>2012-03-xx</pubdate>
+        <releaseinfo>API v1.0 EAP</releaseinfo>
+        <pubdate>2012-04-16</pubdate>
         <revhistory>
             <revision>
-                <date>2012-03-xx</date>
+                <date>2012-04-16</date>
                 <revdescription>
                     <itemizedlist spacing="compact">
                         <listitem>
-                            <para>Added trademark to Cloud
-                                Servers.</para>
-                        </listitem>
-                    </itemizedlist>
-                </revdescription>
-            </revision>
-            <revision>
-                <date>2012-03-13</date>
-                <revdescription>
-                    <itemizedlist spacing="compact">
-                        <listitem>
-                            <para>Added note about solving certificate
-                                errors when using cURL to make API
-                                calls in <xref
-                                   linkend="DB_using-curl-cli"
-                                />.</para>
-                        </listitem>
-                        <listitem>
-                            <para>Updated all authentication endpoints
-                                in <xref
-                                   linkend="Generating_Auth_Token"
-                                />.</para>
-                        </listitem>
-                    </itemizedlist>
-                </revdescription>
-            </revision>
-            <revision>
-                <date>2012-02-16</date>
-                <revdescription>
-                    <itemizedlist spacing="compact">
-                        <listitem>
-                            <para>Updated service catalog for
-                                authentication examples in <xref
-                                   linkend="Generating_Auth_Token"
-                                />.</para>
-                        </listitem>
-                        <listitem>
-                            <para>Added LON endpoint in <xref
-                                   linkend="Service_Access_Endpoints-d1e753"
-                                />.</para>
-                        </listitem>
-                    </itemizedlist>
-                </revdescription>
-            </revision>
-            <revision>
-                <date>2012-02-13</date>
-                <revdescription>
-                    <itemizedlist spacing="compact">
-                        <listitem>
-                            <para>Updated code examples to remove
-                                X-Auth-Project-ID header.</para>
-                        </listitem>
-                    </itemizedlist>
-                </revdescription>
-            </revision>
-            <revision>
-                <date>2012-01-26</date>
-                <revdescription>
-                    <itemizedlist spacing="compact">
-                        <listitem>
-                            <para>Updated doc for bug fixes in
-                                code.</para>
-                        </listitem>
-                        <listitem>
-                            <para>Added DFW service endpoint in <xref
-                                   linkend="Service_Access_Endpoints-d1e753"
-                                /></para>
-                        </listitem>
-                    </itemizedlist>
-                </revdescription>
-            </revision>
-            <revision>
-                <date>2012-01-16</date>
-                <revdescription>
-                    <itemizedlist spacing="compact">
-                        <listitem>
-                            <para>Updated xml examples to remove extra
-                                white space.</para>
-                        </listitem>
-                    </itemizedlist>
-                </revdescription>
-            </revision>
-            <revision>
-                <date>2012-01-11</date>
-                <revdescription>
-                    <itemizedlist spacing="compact">
-                        <listitem>
-                            <para>Added new <xref
-                                   linkend="DB_copy_paste_examples"
-                                />.</para>
-                        </listitem>
-                        <listitem>
-                            <para>Updated procedure steps for <xref
-                                   linkend="Create_Cloud_Server"
-                                />.</para>
-                        </listitem>
-                        <listitem>
-                            <para>Added additional supporting details
-                                to explain individual sections.</para>
-                        </listitem>
-                        <listitem>
-                            <para>Updated examples.</para>
-                        </listitem>
-                    </itemizedlist>
-                </revdescription>
-            </revision>
-            <revision>
-                <date>2011-12-22</date>
-                <revdescription>
-                    <itemizedlist spacing="compact">
-                        <listitem>
-                            <para>Updated name for <xref
-                                   linkend="Generating_Auth_Token"
-                                />.</para>
-                        </listitem>
-                        <listitem>
-                            <para>Added additional supporting details
-                                to explain individual sections.</para>
-                        </listitem>
-                        <listitem>
-                            <para>Divided the section "Configure Your
-                                Existing Cloud Server" into two
-                                sections: <xref
-                                   linkend="Configure_Cloud_Server_DB"
-                                /> and <xref
-                                   linkend="Configure_Cloud_Server_Routing"
-                                />.</para>
-                        </listitem>
-                    </itemizedlist>
-                </revdescription>
-            </revision>
-            <revision>
-                <date>2011-12-20</date>
-                <revdescription>
-                    <itemizedlist spacing="compact">
-                        <listitem>
-                            <para>Fixed cURL XML and JSON examples for <xref
-                                   linkend="Create_DB_User"/>.</para>
-                        </listitem>
-                    </itemizedlist>
-                </revdescription>
-            </revision>
-            <revision>
-                <date>2011-12-8</date>
-                <revdescription>
-                    <itemizedlist spacing="compact">
-                        <listitem>
-                            <para>Initial Private Beta Release.</para>
+                            <para>Initial Early Access Program (EAP)
+                                release.</para>
                         </listitem>
                     </itemizedlist>
                 </revdescription>
@@ -214,16 +67,59 @@
     <section xml:id="DB_Overview">
         <title>Overview</title>
         <para>Follow the steps described in this guide to use the
-            Rackspace Cloud Database API and the Cloud
+            Rackspace Cloud Databases API and the Cloud
             Servers<trademark/> section of the Control Panel to create
             and access your database instances via Rackspace Cloud
             Servers.</para>
-        <para>For details about using the Cloud Database API, refer to
-            the <citetitle>Cloud Database Developer
+        <para>For details about using the Cloud Databases API, refer
+            to the <citetitle>Cloud Databases Developer
                 Guide</citetitle>.</para>
-        <para>For issues with the Cloud Database API, please send
-            email to the beta support list:
-                <email>clouddb_beta@rackspace.com</email>.</para>
+        <para>Request access to the Cloud Databases Forum during the
+            Early Access Program (EAP) by sending an email to:
+                <email>clouddb_beta@rackspace.com</email>. Once
+            received, we will send you an invitation to join our forum
+            group and you may set up your account if you don’t already
+            have one.</para>
+        <para>Support for Cloud Databases during the Early Access
+            Program is available for US and UK customers Monday-Friday
+            8:00AM-5:00PM (Central) and (BST) via phone, chat, or you
+            may also <link
+                xlink:href="https://manage.rackspacecloud.com/Tickets/YourTickets.do"
+                >File a Ticket</link>.</para>
+        <para>Please visit our <link
+                xlink:href="http://feedback.rackspacecloud.com/forums/71021-product-feedback/category/42449-cloud-databases"
+                >Product Feedback Forum</link> and let us know what
+            you think about Cloud Databases!</para>
+        <para>The Early Access Program (EAP) has some limitations. By
+            using the Rackspace Cloud Databases API, you agree and
+            understand that:<itemizedlist spacing="compact">
+                <listitem>
+                    <para>Rackspace Cloud Databases is
+                        API-only.</para>
+                </listitem>
+                <listitem>
+                    <para>There is no charge for this service during
+                        the EAP period.</para>
+                </listitem>
+                <listitem>
+                    <para>We will charge for Rackspace Cloud Databases
+                        when this service becomes generally
+                        available.</para>
+                </listitem>
+                <listitem>
+                    <para>If you participate in this Early-Access
+                        Program, you will receive a notification prior
+                        to general availability.</para>
+                </listitem>
+                <listitem>
+                    <para>There is no Service Level Agreement. </para>
+                </listitem>
+                <listitem>
+                    <para>Support is available from 8 am–5 pm (Central
+                        Time) Monday–Friday.</para>
+                </listitem>
+            </itemizedlist>
+        </para>
         <section xml:id="Prerequisites_Examples">
             <title>Prerequisites for Running Examples</title>
             <para>In order to run the examples in this guide, you must
@@ -303,24 +199,12 @@
                     </listitem>
                 </varlistentry>
             </variablelist>
-            <note> <title>Notes</title>
-                <itemizedlist>
-                    <listitem>
-                        <para>If you get a certificate error when
-                            using cURL to make an API call, you can
-                            try using the <emphasis role="bold"
-                                >-k</emphasis> cURL option to skip the
-                            certificate check.</para>
-                    </listitem>
-                    <listitem>
-                        <para>If you have the tools, you can run the
-                            cURL JSON request examples with the
-                            following options to format the output
-                            from cURL: <command>&lt;curl JSON request
-                                example> | python
-                                -mjson.tool</command>.</para>
-                    </listitem>
-                </itemizedlist>
+            <note>
+                <para>If you have the tools, you can run the cURL JSON
+                    request examples with the following options to
+                    format the output from cURL: <command>&lt;curl
+                        JSON request example> | python
+                        -mjson.tool</command>.</para>
             </note>
         </section>
         <section xml:id="DB_copy_paste_examples">
@@ -410,7 +294,7 @@
         <para>The following example demonstrates how to use cURL to
             obtain the authentication token and the account number.
             You will need to supply the authentication token and
-            account number when making subsequent Cloud Database API
+            account number when making subsequent Cloud Databases API
             calls.</para>
         <para>Remember to replace the names in the Authenticate
             Request examples below with their respective values:<itemizedlist spacing="compact">
@@ -467,14 +351,15 @@
             Rackspace contact information at either site to ask for
             help. </para>
         <para>Notice that you authenticate using a special URL for
-            Cloud authentication services, for example
+            Cloud authentication services. For example, for US-based
+            accounts, you use
                 <code>https://identity.api.rackspacecloud.com/v1.1/auth</code>),
             as shown in the following Authenticate Request
             examples.</para>
         <example>
             <title>cURL Authenticate Request: XML</title>
             <?dbfo keep-together="always"?>
-            <screen><command>curl</command> <option>-i</option> <option>-d</option> \
+            <screen language="xml"><command>curl</command> <option>-i</option> <option>-d</option> \
 '&lt;?xml version="1.0" encoding="UTF-8"?>  
 &lt;credentials xmlns="http://docs.rackspacecloud.com/auth/api/v1.1" 
              username="<emphasis role="bold">your_username</emphasis>" 
@@ -486,7 +371,7 @@
         <example>
             <title>cURL Authenticate Request: JSON</title>
             <?dbfo keep-together="always"?>
-            <programlisting><command>curl</command> <option>-i</option> <option>-d</option> \
+            <programlisting language="json"><command>curl</command> <option>-i</option> <option>-d</option> \
 '{ 
     "credentials": {  
         "username": "<emphasis role="bold">your_username</emphasis>",  
@@ -496,13 +381,20 @@
 <uri>'https://identity.api.rackspacecloud.com/v1.1/auth'</uri></programlisting>
             
         </example>
+        <note>
+            <para>For UK-based accounts, you would need to modify the
+                URL shown in the last line of each of the Authenticate
+                Request  examples above to be
+                    <code>'https://lon.identity.api.rackspacecloud.com/v1.1/auth'</code>
+                instead.</para>
+        </note>
         <example>
             <title>Authenticate Response: XML</title>
             <programlisting language="xml"><xi:include href="../../src/resources/samples/db-auth.xml" parse="text"><xi:fallback>Missing code sample! <?rax fail?></xi:fallback></xi:include></programlisting>
         </example>
         <example>
             <title>Authenticate Response: JSON</title>
-            <programlisting language="xml"><xi:include href="../../src/resources/samples/db-auth.json" parse="text"><xi:fallback>Missing code sample! <?rax fail?></xi:fallback></xi:include></programlisting>
+            <programlisting language="json"><xi:include href="../../src/resources/samples/db-auth.json" parse="text"><xi:fallback>Missing code sample! <?rax fail?></xi:fallback></xi:include></programlisting>
         </example>
         <para>The authentication token <code>id</code> is returned
             along with an <code>expires</code> attribute that
@@ -510,6 +402,14 @@
         <note>
             <title>Notes</title>
             <itemizedlist spacing="compact">
+                <listitem>
+                    <para>The information shown in the Authenticate
+                        Response examples above is for US-based
+                        accounts. If you authenticate against the
+                        UK-endpoint for auth, you will see the service
+                        catalog information for UK-based
+                        accounts.</para>
+                </listitem>
                 <listitem>
                     <para>For all response examples in this guide, the
                         field values you receive in your responses
@@ -545,35 +445,26 @@
                 </listitem>
             </itemizedlist>
         </note>
-        <para>The <code>publicURL</code> endpoint (for example
-                <code>https://servers.api.rackspacecloud.com/v1.0/1234</code>)
-            is also returned in the response. </para>
-        <note>
-            <para>The <code>serviceCatalog</code> that is returned in
-                the auth response, does not currently contain an entry
-                for <code>cloudDatabase</code>. Therefore you will
-                need to select your service access/endpoint as
-                described in <xref
-                    linkend="Service_Access_Endpoints-d1e753"
-                />.</para>
-        </note>
+        <para>The <code>publicURL</code> endpoints for
+                <code>cloudDatabases</code> (for example
+                <code>https://ord.databases.api.rackspacecloud.com/v1.0/1234</code>)
+            are also returned in the response. </para>
         <para>You will find the actual account number after the final
             '/' in the <code>publicURL</code> field. In this example,
             you can see that the account number is 1234. You need to
-            specify your account number on most of the Cloud Database
+            specify your account number on most of the Cloud Databases
             API calls, wherever you see the field <emphasis
                 role="bold">your_acct_id</emphasis> specified in the
             examples in this guide.</para>
         <para>After authentication, you can use cURL to perform &GET;,
-            &DELETE;, and &POST; requests for the Cloud Database
+            &DELETE;, and &POST; requests for the Cloud Databases
             API.</para>
         
     </section>
     <section xml:id="Service_Access_Endpoints-d1e753">
         <title>Service Access/Endpoints</title>
-        <para>Specify a region to operate against by selecting an
-            endpoint from the table below to use for your Cloud
-            Database API calls.</para>
+        <para>The endpoints to use for your Cloud Databases API calls
+            are summarized in the table below.</para>
         <?rax-fo keep-with-next?>
         <para>
             <table rules="all">
@@ -631,7 +522,7 @@
                 <emphasis role="bold">your_acct_id</emphasis>
             specified in this guide. Refer to <xref
                 linkend="Generating_Auth_Token"/>.</para>
-        <para>When making a Cloud Database API call, place the
+        <para>When making a Cloud Databases API call, place the
             endpoint at the beginning of the request URL, for example:
                 (<code>https://ord.databases.api.rackspacecloud.com/v1.0/your_acct_id/</code>),
             as you can see in the cURL List Flavors Details Request
@@ -651,14 +542,14 @@
             Flavors Details:</para>
         <example>
             <title>cURL List Flavors Details Request: XML</title>
-            <programlisting><command>curl -i</command> \
+            <programlisting language="xml"><command>curl -i</command> \
 -H 'X-Auth-Token: <emphasis role="bold">your_auth_token</emphasis>' \
 <option>-H 'Accept: application/xml'</option> \
 <uri>'https://ord.databases.api.rackspacecloud.com/v1.0/</uri><emphasis role="bold">your_acct_id</emphasis><uri>/flavors/detail'</uri></programlisting>
         </example>
         <example>
             <title>cURL List Flavors Details Request: JSON</title>
-            <programlisting><command>curl -i</command> \
+            <programlisting language="json"><command>curl -i</command> \
 -H 'X-Auth-Token: <emphasis role="bold">your_auth_token</emphasis>' \
 <option>-H 'Accept: application/json'</option> \
 <uri>'https://ord.databases.api.rackspacecloud.com/v1.0/</uri><emphasis role="bold">your_acct_id</emphasis><uri>/flavors/detail'</uri></programlisting>
@@ -688,7 +579,7 @@
         </example>
         <example>
             <title>List Flavors Details Response: JSON</title>
-            <programlisting language="xml"><xi:include href="../../src/resources/samples/db-flavors-detail-response.json" parse="text"><xi:fallback>Missing code sample! <?rax fail?></xi:fallback></xi:include></programlisting>
+            <programlisting language="json"><xi:include href="../../src/resources/samples/db-flavors-detail-response.json" parse="text"><xi:fallback>Missing code sample! <?rax fail?></xi:fallback></xi:include></programlisting>
         </example>
         <para>In the previous examples, you can see from the flavor
                 <code>name</code> that there are multiple flavors
@@ -701,22 +592,45 @@
     </section>
     
     <section xml:id="Create_DB_Instance">
-            <title>Create a Database Instance with a Database</title>
+            <title>Create a Database Instance with a Database and a
+            User</title>
             <para>A database instance is an isolated MySQL instance in
             a single tenant environment on a shared physical host
             machine. In the example below, you create a database
-            instance with a database using the tiny flavor and volume
-            size of 2 gigabytes (GB). </para>
+            instance with a database and a user. The example instance
+            uses the tiny flavor and a volume size of 2 gigabytes
+            (GB). </para>
         <para>Refer to <link
-                xlink:href="http://docs-beta.rackspace.com/cdb/api/v1.0/cdb-devguide/content/POST_createDatabase__version__instances__instanceId__databases_databases.html"
+                xlink:href="http://docs-beta.rackspace.com/cdb/api/v1.0/cdb-devguide/content/POST_createDatabase__version___accountID__instances__instanceId__databases_databases.html"
                 >Create Database</link> in the <citetitle>Cloud
-                Database Developer Guide</citetitle> for the
+                Databases Developer Guide</citetitle> for the
             restrictions for choosing the database name.</para>
         <para>The example creates a database instance
-                <code>myrackinstance</code>, with a database named
-                <code>sampledb</code>, <code>utf8</code> character
-            set, and <code>utf8_general_ci</code> collation, using the
-            tiny flavor and volume size of 2 gigabytes (GB).</para>
+                <code>myrackinstance</code>, with the following: <itemizedlist>
+                <listitem>
+                    <para>the tiny flavor</para>
+                </listitem>
+                <listitem>
+                    <para>volume size of 2 gigabytes (GB)</para>
+                </listitem>
+                <listitem>
+                    <para>a database named <code>sampledb</code> with:<itemizedlist>
+                            <listitem>
+                                <para><code>utf8</code> character
+                                   set</para>
+                            </listitem>
+                            <listitem>
+                                <para><code>utf8_general_ci</code>
+                                   collation</para>
+                            </listitem>
+                        </itemizedlist></para>
+                </listitem>
+                <listitem>
+                    <para>a user <code>simplestUser</code> with
+                        password <code>password</code></para>
+                </listitem>
+            </itemizedlist>
+        </para>
         <para>Notice that the request specifies the flavor reference
                 (<code>flavorRef</code>) to the tiny flavor (id 1)
             that was returned by the List Flavors Details call:
@@ -726,17 +640,24 @@
         <para>The following examples show the cURL requests for Create
             Instance:</para>
         <example>
-            <title>cURL Create Instance Request : XML</title>
-            <programlisting><command>curl</command> <option>-i</option> <option>-d</option> \
+            <title>cURL Create Instance Request: XML</title>
+            <programlisting language="xml"><command>curl</command> <option>-i</option> <option>-d</option> \
 '&lt;?xml version="1.0" ?> 
 &lt;instance xmlns="http://docs.openstack.org/database/api/v1.0" 
     name="myrackinstance" 
     flavorRef= 
-      "https://ord.databases.api.rackspacecloud.com/v1.0/1234/flavors/1"> 
+      "https://ord.databases.api.rackspacecloud.com/v1.0/<emphasis role="bold">your_acct_id</emphasis>/flavors/1"> 
     &lt;databases> 
         &lt;database name="sampledb" character_set="utf8" 
          collate="utf8_general_ci" /> 
-    &lt;/databases> 
+    &lt;/databases>
+    &lt;users>
+        &lt;user name="simplestUser" password="password">
+            &lt;databases>
+                &lt;database name="sampledb"/>
+            &lt;/databases>
+        &lt;/user>
+    &lt;/users> 
     &lt;volume size="2" /> 
 &lt;/instance>' \
 -H 'X-Auth-Token: <emphasis role="bold">your_auth_token</emphasis>' \
@@ -745,25 +666,35 @@
 <uri>'https://ord.databases.api.rackspacecloud.com/v1.0/</uri><emphasis role="bold">your_acct_id</emphasis><uri>/instances'</uri></programlisting>
         </example>
         <example>
-            <title>cURL Create Instance Request : JSON</title>
-            <programlisting><command>curl</command> <option>-i</option> <option>-d</option> \
-'{ 
-    "instance": { 
-        "name": "myrackinstance", 
-        "flavorRef": 
-"https://ord.databases.api.rackspacecloud.com/v1.0/1234/flavors/1", 
-        "databases": [ 
-            { 
-                "name": "sampledb", 
-                "character_set": "utf8", 
-                "collate": "utf8_general_ci" 
-            } 
-        ], 
+            <title>cURL Create Instance Request: JSON</title>
+            <programlisting language="json"><command>curl</command> <option>-i</option> <option>-d</option> \
+'{
+    "instance": {
+        "databases": [
+            {
+                "character_set": "utf8",
+                "collate": "utf8_general_ci",
+                "name": "sampledb"
+            }
+        ],
+        "flavorRef": "https://ord.databases.api.rackspacecloud.com/v1.0/<emphasis role="bold">your_acct_id</emphasis>/flavors/1",
+        "name": "myrackinstance",
+        "users": [
+            {
+                "databases": [
+                    {
+                        "name": "sampledb"
+                    }
+                ],
+            "name": "simplestUser",
+            "password": "password"
+            }
+        ],
         "volume": 
-            { 
-                "size": "2" 
-            } 
-    } 
+            {
+                "size": "2"
+            }
+    }
 }' \
 -H 'X-Auth-Token: <emphasis role="bold">your_auth_token</emphasis>' \
 <option>-H 'Content-Type: application/json'</option> \
@@ -786,9 +717,9 @@
                         be replaced in the request URL)</para>
                 </listitem>
             </itemizedlist></para>
-        <para>Also remember to replace the dummy account id
-                <code>1234</code> shown in the <code>flavorRef</code>
-            property for the examples with your actual account id:
+        <para>Remember to replace the account id shown in the
+                <code>flavorRef</code> property for the examples with
+            your actual account id:
                 <code>"https://ord.databases.api.rackspacecloud.com/v1.0/</code><emphasis
                 role="bold"
                 >your_acct_id</emphasis><code>/flavors/1"</code>.</para>
@@ -797,62 +728,47 @@
             
             <example>
                 <title>Create Instance Response: XML</title>
-                <programlisting language="xml"><xi:include href="../../src/resources/samples/db-create-database-instance-response.xml" parse="text"><xi:fallback>Missing code sample! <?rax fail?></xi:fallback></xi:include></programlisting>
+                <programlisting language="xml"><xi:include href="../../src/resources/samples/db-gs-create-database-instance-response.xml" parse="text"><xi:fallback>Missing code sample! <?rax fail?></xi:fallback></xi:include></programlisting>
             </example>
             
             <example>
                 <title>Create Instance Response: JSON</title>
-                <programlisting language="xml"><xi:include href="../../src/resources/samples/db-create-database-instance-response.json" parse="text"><xi:fallback>Missing code sample! <?rax fail?></xi:fallback></xi:include></programlisting>
+                <programlisting language="json"><xi:include href="../../src/resources/samples/db-gs-create-database-instance-response.json" parse="text"><xi:fallback>Missing code sample! <?rax fail?></xi:fallback></xi:include></programlisting>
             </example>
         <para>You will need to specify the instance id returned (in
             the response examples above:
-                <code>id="00ff11ee-22dd-33cc-44bb-55aa66007799"</code>)
-            on subsequent API calls that require it, for example
-            Create User.</para>
+                <code>id="d379ba5c-9a1f-4aa9-9a17-afe237d04c65"</code>)
+            on subsequent API calls that require it, for example List
+            Databases for Instance.</para>
+        <para>Note that the database and user are not listed in the
+            Create Instance responses. Next you will verify that both
+            were successfully created.</para>
         </section>
-    <section xml:id="Create_DB_User">
-        <title>Create User</title>
-        <para>Create a new user within the database instance. The user
-            name and password are required.</para>
-        <para>This operation asynchronously provisions a new user
-                (<code>simplestUser</code>) and password
-                (<code>password</code>) for the specified database
-            instance (<emphasis role="bold">instance_id</emphasis>) and database
-                (<code>sampledb</code>), as specified in the request. </para>
-        <para>Once the request is validated and progress has started
-            on the provisioning process, a 202 Accepted response
-            object is returned.</para>
+    <section xml:id="List_DBS_For_Instance">
+        <title>List Databases for Instance</title>
+        <para>In this section you will list the databases in the
+            specified database instance.</para>
+        <para>This operation does not require a request body.</para>
         <para xmlns="http://docbook.org/ns/docbook">The following
-            examples show the cURL requests for Create User:</para>
+            examples show the cURL requests for List Databases for
+            Instance:</para>
         <example>
-            <title>cURL Create User Request: XML</title>
-            <programlisting><command>curl</command> <option>-d</option> \
-'&lt;?xml version="1.0" ?> 
-&lt;users xmlns="http://docs.openstack.org/database/api/v1.0"> 
-    &lt;user name="simplestUser" 
-         password="password" database="sampledb"/> 
-&lt;/users>' \
+            <title>cURL List Databases for Instance Request:
+                XML</title>
+            <programlisting language="xml"><command>curl</command> <option>-i</option> \
 -H 'X-Auth-Token: <emphasis role="bold">your_auth_token</emphasis>' \
 <option>-H 'Content-Type: application/xml'</option> \
 <option>-H 'Accept: application/xml'</option> \
-<uri>'https://ord.databases.api.rackspacecloud.com/v1.0/</uri><emphasis role="bold">your_acct_id</emphasis><uri>/instances/</uri><emphasis role="bold">instance_id</emphasis><uri>/users'</uri></programlisting>
+<uri>'https://ord.databases.api.rackspacecloud.com/v1.0/</uri><emphasis role="bold">your_acct_id</emphasis><uri>/instances/</uri><emphasis role="bold">instance_id</emphasis><uri>/databases'</uri></programlisting>
         </example>
         <example>
             <?dbfo keep-together="always"?>
-            <title>cURL Create User Request: JSON</title>
-            <programlisting><command>curl</command> <option>-d</option> \
-'{ 
-    "users": [ 
-        { 
-            "name": "simplestUser", 
-            "password": "password", 
-            "database": "sampledb" 
-        } 
-    ] 
-}' \
+            <title>cURL List Databases for Instance Request:
+                JSON</title>
+            <programlisting language="xml"><command>curl</command> <option>-i</option> \
 -H 'X-Auth-Token: <emphasis role="bold">your_auth_token</emphasis>' \
 <option>-H 'Content-Type: application/json'</option> \
-<uri>'https://ord.databases.api.rackspacecloud.com/v1.0/</uri><emphasis role="bold">your_acct_id</emphasis><uri>/instances/</uri><emphasis role="bold">instance_id</emphasis><uri>/users'</uri></programlisting>
+<uri>'https://ord.databases.api.rackspacecloud.com/v1.0/</uri><emphasis role="bold">your_acct_id</emphasis><uri>/instances/</uri><emphasis role="bold">instance_id</emphasis><uri>/databases'</uri></programlisting>
         </example>
         <para>Remember to replace the names in the examples above with
             their actual respective values:<itemizedlist spacing="compact">
@@ -877,17 +793,134 @@
                             linkend="Create_DB_Instance"/>)</para>
                 </listitem>
             </itemizedlist></para>
-        <para>This operation does not return a response body.</para>
         <para>The following examples show the responses for Create
             User:</para>
         <example>
-            <title>Create User Response: XML</title>
-            <programlisting language="xml"><xi:include href="../../src/resources/samples/db-create-users-response.xml" parse="text"><xi:fallback>Missing code sample! <?rax fail?></xi:fallback></xi:include></programlisting>
+            <title>List Databases for Instance Response: XML</title>
+            <programlisting language="xml">HTTP/1.1 200 OK
+Content-Type: application/xml
+Content-Length: 109
+Date: Thu, 05 Apr 2012 18:20:18 GMT
+
+&lt;databases xmlns="http://docs.openstack.org/database/api/v1.0">
+    &lt;database name="sampledb"/>
+&lt;/databases>
+</programlisting>
         </example>
         <example>
-            <title>Create User Response: JSON</title>
-            <programlisting language="xml"><xi:include href="../../src/resources/samples/db-create-users-response.json" parse="text"><xi:fallback>Missing code sample! <?rax fail?></xi:fallback></xi:include></programlisting>
+            <title>List Databases for Instance Response: JSON</title>
+            <programlisting language="json">HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 37
+Date: Thu, 05 Apr 2012 18:13:53 GMT
+
+{
+    "databases": [
+        {
+            "name": "sampledb"
+        }
+    ]
+}</programlisting>
         </example>
+        <para>You can see that the database <code>sampledb</code> was
+            successfully created. Next you will list the users.</para>
+    </section>
+    <section xml:id="List_Users_DB_Instance">
+        <title>List Users in Database Instance</title>
+        <para>In this section you will list the users in the specified
+            database instance.</para>
+        <para>This operation does not require a request body.</para>
+        <para>The following examples show the cURL requests for List
+            Users in Database Instance:</para>
+        <example>
+            <title>cURL List Users in Database Instance Request:
+                XML</title>
+            <programlisting language="xml"><command>curl</command> <option>-i</option> \
+-H 'X-Auth-Token: <emphasis role="bold">your_auth_token</emphasis>' \
+<option>-H 'Content-Type: application/xml'</option> \
+<option>-H 'Accept: application/xml'</option> \
+<uri>'https://ord.databases.api.rackspacecloud.com/v1.0/</uri><emphasis role="bold">your_acct_id</emphasis><uri>/instances/</uri><emphasis role="bold">instance_id</emphasis><uri>/users'</uri></programlisting>
+        </example>
+        <example>
+            <?dbfo keep-together="always"?>
+            <title>cURL List Users in Database Instance Request:
+                JSON</title>
+            <programlisting language="json"><command>curl</command> <option>-i</option> \
+-H 'X-Auth-Token: <emphasis role="bold">your_auth_token</emphasis>' \
+<option>-H 'Content-Type: application/json'</option> \
+<uri>'https://ord.databases.api.rackspacecloud.com/v1.0/</uri><emphasis role="bold">your_acct_id</emphasis><uri>/instances/</uri><emphasis role="bold">instance_id</emphasis><uri>/users'</uri></programlisting>
+        </example>
+        <para>Remember to replace the names in the examples above with
+            their actual respective values:<itemizedlist
+                spacing="compact">
+                <listitem>
+                    <para><emphasis role="bold"
+                            >your_auth_token</emphasis> &mdash; as
+                        returned in your authentication response (see
+                        the examples in <xref
+                            linkend="Generating_Auth_Token"/>)</para>
+                </listitem>
+                <listitem>
+                    <para><emphasis role="bold"
+                            >your_acct_id</emphasis> &mdash; as
+                        returned in your authentication response (see
+                        the examples in <xref
+                            linkend="Generating_Auth_Token"/>)</para>
+                </listitem>
+                <listitem>
+                    <para><emphasis role="bold">instance_id</emphasis>
+                        &mdash; as returned in your create instance
+                        response (see the examples in <xref
+                            linkend="Create_DB_Instance"/>)</para>
+                </listitem>
+            </itemizedlist></para>
+        <para>The following examples show the responses for List
+            Users in Database Instance:</para>
+        <example>
+            <title>List  Users in Database Instance Response:
+                XML</title>
+            <programlisting language="xml">HTTP/1.1 200 OK
+Content-Type: application/xml
+Content-Length: 109
+Date: Thu, 05 Apr 2012 18:20:18 GMT
+
+&lt;?xml version="1.0" ?>
+&lt;users xmlns="http://docs.openstack.org/database/api/v1.0">
+    &lt;user name="simplestUser">
+        &lt;databases>
+            &lt;database>
+                &lt;name>
+                    sampledb
+                &lt;/name>
+            &lt;/database>
+        &lt;/databases>
+    &lt;/user>
+&lt;/users>
+</programlisting>
+        </example>
+        <example>
+            <title>List Users in Database Instance Response:
+                JSON</title>
+            <programlisting language="json">HTTP/1.1 200 OK
+Content-Type: application/json
+Content-Length: 113
+Date: Thu, 05 Apr 2012 18:13:53 GMT
+
+{
+    "users": [
+        {
+            "databases": [
+                {
+                    "name": "sampledb"
+                }
+            ],
+            "name": "simplestUser"  
+        }
+    ]
+}</programlisting>
+        </example>
+        <para>You can see that the user <code>simplestUser</code> was
+            successfully created.</para>
     </section>
     <section xml:id="Create_Cloud_Server">
         <title>Create a New Cloud Server</title>
