@@ -20,8 +20,8 @@
     <resource id="mgmt" path="mgmt">
       <resource id="hosts" path="hosts">
           <method href="#gethosts"/>
-          <resource id="hostid" path="{hostid}">
-              <param name="hostid" style="template" type="xsd:string">
+          <resource id="hostid" path="{hostId}">
+              <param name="hostId" style="template" type="xsd:string">
                 <doc>The host ID for the specified host.</doc></param>
               <method href="#gethostbyid"/>
           </resource>
@@ -48,8 +48,8 @@
         <method href="#indexstorage"/>
       </resource>
       <resource id="accounts" path="accounts">
-        <resource id="accountid" path="{accountid}">
-          <param name="accountid" style="template" type="xsd:string">
+        <resource id="accountid" path="{accountId}">
+          <param name="accountId" style="template" type="xsd:string">
             <doc>The account ID for the specified account.</doc>
           </param>
           <method href="#getaccountbyid"/>
@@ -58,8 +58,8 @@
       <resource id="configs" path="configs">
           <method href="#createconfigs"/>
           <method href="#getconfigs"/>
-          <resource id="configid" path="{configid}">
-              <param name="configid" style="template" type="xsd:string">
+          <resource id="configid" path="{configId}">
+              <param name="configId" style="template" type="xsd:string">
                 <doc>The config ID for the specified configuration.</doc>
               </param>
               <method href="#getconfigbyid"/>
