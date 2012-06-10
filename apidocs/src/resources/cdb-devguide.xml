@@ -60,7 +60,7 @@
         </copyright>
         <releaseinfo>API v1.0 EAP</releaseinfo>
         <productname>Rackspace Cloud Databases</productname>
-        <pubdate>2012-04-16</pubdate>
+        <pubdate>2012-05-31</pubdate>
         <legalnotice role="rs-api">
             <annotation>
                 <remark>Copyright details are filled in by the template.</remark>
@@ -74,6 +74,26 @@
         </abstract>
         
         <revhistory>
+            <revision>
+                <date>2012-05-31</date>
+                <revdescription>
+                    <itemizedlist spacing="compact">
+                        <listitem>
+                            <para>Added note in <xref
+                                   linkend="Additional_Resources-d1e532"
+                                /> about forum access and access to
+                                the Cloud Databases service.</para>
+                        </listitem>
+                        <listitem>
+                            <para>Added Accessibility section to
+                                describe limits for accessing database
+                                instances. Refer to <xref
+                                   linkend="Accessibility"/> for
+                                details.</para>
+                        </listitem>
+                    </itemizedlist>
+                </revdescription>
+            </revision>
             <revision>
                 <date>2012-04-16</date>
                 <revdescription>
@@ -139,10 +159,7 @@
                 </listitem>
             </itemizedlist>
         </para>
-        <remark>Writer: need to check with Daniel for correct product
-            name once we have settled on that name; then get product
-            name modified throughout entire manual .</remark>
-        <para security="writeronly">The following figure shows an
+        <para>The following figure shows an
             overview of Cloud Databases Infrastructure: <informalfigure>
                 <mediaobject>
                     <imageobject role="fo">
@@ -152,16 +169,13 @@
                     </imageobject>
                     <imageobject role="html">
                         <imagedata
-                            fileref="images/Cloud_DB_Infographic-1.png"
-                        />
+                            fileref="images/Cloud_DB_Infographic-1.png"/>
                     </imageobject>
                 </mediaobject>
             </informalfigure>
         </para>
         <remark>Writer: need to get architecture diagram for DBaaS.
-            Daniel emailed 11/17 that he would work on this during the
-            Private Beta and have it done for the Public
-            Beta.</remark>
+            Emailed Daniel 5/1/12.</remark>
         <para security="writeronly">We welcome feedback, comments, and bug reports at <link
                 xlink:href="http://feedback.rackspacecloud.com"
                 >http://feedback.rackspacecloud.com</link>.</para>
@@ -219,8 +233,8 @@
             </itemizedlist>
             <para>You can download the most current versions of other
                 API-related documents from <link
-                    xlink:href="http://docs.rackspace.com/api/"
-                    >http://docs.rackspace.com/api/</link>. </para>
+                    xlink:href="http://docs.rackspace.com/"
+                    >http://docs.rackspace.com/</link>. </para>
             <para>For information about getting started using Cloud
                 Databases and Cloud Servers, refer to
                     <citetitle>Getting Started with Rackspace Cloud
@@ -232,18 +246,34 @@
                 also offers links to Rackspace's official support
                 channels, including knowledge base articles, forums,
                 phone, chat, and email. </para>
-            <para>Request access to the Cloud Databases Forum during
-                the Early Access Program (EAP) by sending an email to:
-                    <email>clouddb_beta@rackspace.com</email>. Once
-                received, we will send you an invitation to join our
-                forum group and you may set up your account if you
-                don’t already have one.</para>
+            <para>There is no need to request an invitation or account
+                activation in order to access the Cloud Databases
+                service. Using this API document, your Rackspace Cloud
+                account, and at least one Cloud Server, you can get
+                started whenever you'd like. See the
+                    <citetitle>Getting Started with Rackspace Cloud
+                    Databases and Servers</citetitle> at <link
+                    xlink:href="http://docs.rackspace.com/"
+                    >http://docs.rackspace.com/</link> for information
+                about getting started using the API.</para>
+            <para>If you’d like to discuss database-related topics
+                with other Early Access users in our private Cloud
+                Databases community forum, please send an email to:
+                    <email>clouddb_beta@rackspace.com</email> to
+                receive your forum invitation.<note>
+                    <para>Forum access is <emphasis>not</emphasis>
+                        required to get access to Cloud Databases.
+                        Forum access is separate from access to the
+                        Cloud Databases service and allows you access
+                        for community support and discussions around
+                        development, design, and administration
+                        topics.</para>
+                </note></para>
             <para>Support for Cloud Databases during the Early Access
                 Program is available for US and UK customers
                 Monday-Friday 8:00AM-5:00PM (Central) and (BST) via
-                phone, chat, or you may also <link
-                    xlink:href="https://manage.rackspacecloud.com/Tickets/YourTickets.do"
-                    >File a Ticket</link>.</para>
+                phone, chat, or you may also file a ticket using the
+                Control Panel.</para>
             <para>Please visit our <link
                     xlink:href="http://feedback.rackspacecloud.com/forums/71021-product-feedback/category/42449-cloud-databases"
                     >Product Feedback Forum</link> and let us know
@@ -609,11 +639,12 @@
                         in parsing the service catalog. For Auth 2.0
                         (also known as the Cloud Identity Service),
                         you can see the service type attribute in the
-                        "Authentication Response with Headers" sample
-                        in the Cloud Identity Client Developer Guide
-                        at <link
-                            xlink:href="http://docs.rackspace.com/auth/api/v2.0/auth-client-devguide/content/Request_Response_Types-d1e149.html"
-                            >http://docs.rackspace.com/auth/api/v2.0/auth-client-devguide/content/Request_Response_Types-d1e149.html</link>.</para>
+                        "Service Catalog in Authentication Response"
+                        samples in the <citetitle>Cloud Identity
+                            Client Developer Guide</citetitle> at
+                            <link
+                            xlink:href="http://docs.rackspace.com/auth/api/v2.0/auth-client-devguide/content/Sample_Request_Response-d1e64.html"
+                            >http://docs.rackspace.com/auth/api/v2.0/auth-client-devguide/content/Sample_Request_Response-d1e64.html</link>.</para>
                 </tip>
             </section>
         </section>
@@ -1496,6 +1527,36 @@
                 </listitem> 
             </itemizedlist>
         </section>
+        <section xml:id="Accessibility">
+            <title>Database Instance Accessibility</title>
+            <para>Database instances are directly accessible only on
+                the internal ServiceNet network and using a Cloud
+                resource within the same regional datacenter. For
+                example, a database instance in DFW can only be
+                accessed by a Cloud Server in DFW.</para>
+            <para>Note that using a public Cloud Load Balancer allows
+                you to access your ServiceNet database instance from
+                the public network by performing the following steps:<orderedlist>
+                    <listitem>
+                        <para>Using the Cloud Databases API, create a
+                            database instance. For details see <xref
+                                linkend="POST_createInstance__version___accountId__instances_Database_Instances"
+                            />.</para>
+                    </listitem>
+                    <listitem>
+                        <para>Using the Cloud Load Balancers API,
+                            create a public load balancer and specify
+                            your database instance hostname as a node,
+                            or use the API to add your instance
+                            hostname as a node to an existing public
+                            load balancer. For details refer to the
+                                <citetitle>Cloud Load Balancers
+                                Developer Guide</citetitle> at <link
+                                xlink:href="http://docs.rackspace.com/api/"
+                                >http://docs.rackspace.com/api/</link>.</para>
+                    </listitem>
+                </orderedlist></para>
+        </section>
     </chapter>
     
     <chapter xml:id="API_Operations-d1e2264" 
@@ -1506,8 +1567,8 @@
             <para>Do not use trailing slashes (/) at the end of calls
                 to API operations, since this may cause the call to
                 fail. For example, do not use &GET; /instances/detail/
-                (with the trailing slash at the end). Rather use &GET;
-                /instances/detail instead.</para>
+                (with the trailing slash at the end). Rather, use
+                &GET; /instances/detail instead.</para>
         </note>
         
         <section xml:id="API_Versions">
@@ -1515,10 +1576,10 @@
             <para>This section describes the versions that are
                 supported for the Cloud Databases API.</para>
             <wadl:resources xmlns:wadl="http://wadl.dev.java.net/2009/02">
-                <wadl:resource href="dbaas.wadl#versions">
+                <wadl:resource href="../../../xsd/dbaas.wadl#versions">
                     <wadl:method href="getVersions"/>
                 </wadl:resource>
-                <wadl:resource href="dbaas.wadl#version">
+                <wadl:resource href="../../../xsd/dbaas.wadl#version">
                     <wadl:method href="getVersionInfo" />
                 </wadl:resource>
             </wadl:resources>               
@@ -1528,18 +1589,18 @@
             <title>Database Instances</title>
             <para>This section describes the operations that are supported for database instances.</para>
             <wadl:resources xmlns:wadl="http://wadl.dev.java.net/2009/02">
-                <wadl:resource href="dbaas.wadl#instances" >
+                <wadl:resource href="../../../xsd/dbaas.wadl#instances" >
                     <wadl:method href="createInstance"/>
                     <wadl:method href="getInstance"/>
                 </wadl:resource>
-                <wadl:resource href="dbaas.wadl#instanceDetails">
+                <wadl:resource href="../../../xsd/dbaas.wadl#instanceDetails">
                     <wadl:method href="getInstanceDetails"/>
                 </wadl:resource>
-                <wadl:resource href="dbaas.wadl#instanceId">
+                <wadl:resource href="../../../xsd/dbaas.wadl#instanceId">
                     <wadl:method href="getInstanceById"/>
                     <wadl:method href="deleteInstance"/>  
                 </wadl:resource>
-                <wadl:resource href="dbaas.wadl#root">
+                <wadl:resource href="../../../xsd/dbaas.wadl#root">
                     <wadl:method href="createRoot"/>
                     <wadl:method href="isRootEnabled"/>
                 </wadl:resource>
@@ -1550,7 +1611,7 @@
             <title>Database Instance Actions</title>
             <para>This section describes the actions that are supported for database instances.</para>
             <wadl:resources xmlns:wadl="http://wadl.dev.java.net/2009/02">
-                <wadl:resource href="dbaas.wadl#instanceAction" >
+                <wadl:resource href="../../../xsd/dbaas.wadl#instanceAction" >
                     <wadl:method href="restartInstance"/>
                     <wadl:method href="resizeInstance"/>
                     <wadl:method href="resizeVolume"/>
@@ -1564,11 +1625,11 @@
                 supported for databases.</para>
             <wadl:resources
                 xmlns:wadl="http://wadl.dev.java.net/2009/02">
-                <wadl:resource href="dbaas.wadl#databases">
+                <wadl:resource href="../../../xsd/dbaas.wadl#databases">
                     <wadl:method href="createDatabase"/>
                     <wadl:method href="getDatabases"/>
                 </wadl:resource>
-                <wadl:resource href="dbaas.wadl#databaseName">
+                <wadl:resource href="../../../xsd/dbaas.wadl#databaseName">
                     <wadl:method href="deleteDatabase"/>
                 </wadl:resource>
             </wadl:resources>
@@ -1580,11 +1641,11 @@
                 supported for managing database users.</para>
             <wadl:resources
                 xmlns:wadl="http://wadl.dev.java.net/2009/02">
-                <wadl:resource href="dbaas.wadl#users">
+                <wadl:resource href="../../../xsd/dbaas.wadl#users">
                     <wadl:method href="createUser"/>
                     <wadl:method href="getUsers"/>
                 </wadl:resource>
-                <wadl:resource href="dbaas.wadl#userId">
+                <wadl:resource href="../../../xsd/dbaas.wadl#userId">
                     <wadl:method href="deleteUser"/>
                 </wadl:resource>
             </wadl:resources>
@@ -1596,16 +1657,49 @@
                 supported for flavors.</para>
             <wadl:resources
                 xmlns:wadl="http://wadl.dev.java.net/2009/02">
-                <wadl:resource href="dbaas.wadl#flavors">
+                <wadl:resource href="../../../xsd/dbaas.wadl#flavors">
                     <wadl:method href="getFlavors"/>
                 </wadl:resource>
-                <wadl:resource href="dbaas.wadl#flavorDetails">
+                <wadl:resource href="../../../xsd/dbaas.wadl#flavorDetails">
                     <wadl:method href="getFlavorDetails"/>
                 </wadl:resource>
-                <wadl:resource href="dbaas.wadl#flavorId">
+                <wadl:resource href="../../../xsd/dbaas.wadl#flavorId">
                     <wadl:method href="getFlavorById"/>
                 </wadl:resource>
             </wadl:resources>
         </section>
     </chapter>
+    <glossary>
+        <title>Glossary</title>
+        <glossentry xml:id="Database-d1e017">
+            <glossterm>database</glossterm>
+            <glossdef>
+                <para>A MySQL database within a database instance.</para>
+            </glossdef>
+        </glossentry>
+        <glossentry xml:id="Database-Instance-d1e016">
+            <glossterm>database instance</glossterm>
+            <glossdef>
+                <para>A database instance is an isolated MySQL instance in a single tenant environment on a
+                    shared physical host machine. Also referred to as instance.</para>
+            </glossdef>
+        </glossentry>
+        <glossentry xml:id="Flavor-d1e018">
+            <glossterm>flavor</glossterm>
+            <glossdef>
+                <para>A flavor is an available hardware configuration for a database instance. Each flavor has a unique combination of memory capacity and priority for CPU time.</para>
+            </glossdef>
+        </glossentry>
+        <glossentry xml:id="Volume-d1e019">
+            <glossterm>volume</glossterm>
+            <glossdef>
+                <para>A volume is user-specified storage that contains the MySQL data directory. 
+                    Volumes are automatically provisioned on shared Internet Small Computer System Interface (iSCSI) 
+                    storage area networks (SAN) that provide for increased performance, scalability, availability 
+                    and manageability. Applications with high I/O demands are performance optimized and data is 
+                    protected through both local and network RAID-10. Additionally, network RAID provides synchronous 
+                    replication of volumes with automatic failover and load balancing across available storage clusters.</para>
+            </glossdef>
+        </glossentry>
+    </glossary>
 </book>
